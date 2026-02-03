@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARGET LOCK SYSTEM | COD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-red: #ff0033;
+            --neon-red-glow: #ff3366;
+            --neon-dark-red: #cc0029;
+            --neon-cyan: #00ffff;
+            --dark-bg: #0a0005;
+            --panel-bg: rgba(20, 0, 5, 0.95);
+            --glow-intensity: 0.8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: auto;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 51, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 51, 0.08) 0%, transparent 25%);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 15px;
+            position: relative;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .time-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--neon-red);
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px var(--neon-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 0, 51, 0.1);
+            border-radius: 5px;
+            border-left: 3px solid var(--neon-red);
+        }
+
+        .time-display i {
+            font-size: 18px;
+        }
+
+        .main-title {
+            font-size: 48px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 40px;
+            letter-spacing: 4px;
+            line-height: 1;
+            position: relative;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .main-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 150px;
+            height: 3px;
+            background: var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, rgba(40, 0, 10, 0.9), rgba(30, 0, 5, 0.9));
+            border: 1px solid rgba(255, 0, 51, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 51, 0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            border-color: var(--neon-red-glow);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(255, 0, 51, 0.3);
+        }
+
+        .stat-card.active {
+            background: linear-gradient(145deg, rgba(60, 0, 15, 0.95), rgba(40, 0, 10, 0.95));
+            border-color: #fff;
+            box-shadow: 0 0 25px rgba(255, 0, 51, 0.5);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+
+        .stat-icon {
+            color: var(--neon-red);
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .toggle-switch {
+            width: 55px;
+            height: 28px;
+            background: rgba(80, 0, 20, 0.7);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 0, 51, 0.4);
+        }
+
+        .toggle-switch.on {
+            background: var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .toggle-switch.on::after {
+            left: 29px;
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+        }
+
+        .stat-desc {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .stat-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(100, 0, 20, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-red), var(--neon-red-glow));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 8px var(--neon-red);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--neon-red);
+            min-width: 45px;
+            text-align: right;
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+
+        /* Center Panel with Hidden Character */
+        .center-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: visible;
+        }
+
+        .targeting-scene {
+            width: 100%;
+            height: 80vh;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(45deg, rgba(15, 0, 5, 0.95), rgba(25, 0, 10, 0.9));
+            border: 2px solid rgba(255, 0, 51, 0.4);
+            box-shadow: 
+                0 0 40px rgba(255, 0, 51, 0.25),
+                inset 0 0 40px rgba(255, 0, 51, 0.15);
+        }
+
+        .scene-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, transparent 30%, rgba(255, 0, 51, 0.1) 100%),
+                url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=20');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.3) contrast(1.2);
+            z-index: 1;
+        }
+
+        /* Hidden Character behind crosshair */
+        .hidden-character {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            z-index: 2;
+            opacity: 0.7;
+            filter: blur(1px) contrast(1.3) brightness(0.8);
+        }
+
+        .character-silhouette {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://sf-static.upanhlaylink.com/img/image_20260203d1226adf36cc8131f4479a1830da669e.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            mix-blend-mode: hard-light;
+        }
+
+        /* Crosshair System ON TOP of character */
+        .crosshair-system {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .crosshair {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .crosshair-center {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+                0 0 20px var(--neon-red),
+                0 0 40px var(--neon-red),
+                0 0 60px var(--neon-red);
+            animation: crosshair-pulse 1.5s infinite alternate;
+            z-index: 11;
+        }
+
+        .crosshair-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 12;
+            box-shadow: 0 0 10px #fff;
+        }
+
+        .crosshair-line {
+            position: absolute;
+            background: var(--neon-red);
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+
+        .line-top {
+            width: 2px;
+            height: 30px;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: line-glow 2s infinite alternate;
+        }
+
+        .line-bottom {
+            width: 2px;
+            height: 30px;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: line-glow 2s infinite alternate-reverse;
+        }
+
+        .line-left {
+            width: 30px;
+            height: 2px;
+            top: 50%;
+            left: -35px;
+            transform: translateY(-50%);
+            animation: line-glow 2s infinite alternate;
+        }
+
+        .line-right {
+            width: 30px;
+            height: 2px;
+            top: 50%;
+            right: -35px;
+            transform: translateY(-50%);
+            animation: line-glow 2s infinite alternate-reverse;
+        }
+
+        .headshot-indicator {
+            position: absolute;
+            top: 23%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--neon-red);
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 2px solid var(--neon-red);
+            z-index: 15;
+            text-shadow: 0 0 10px var(--neon-red);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+            animation: indicator-pulse 2s infinite;
+        }
+
+        .target-status {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            color: var(--neon-cyan);
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid var(--neon-cyan);
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .targeting-scene:hover .target-status {
+            opacity: 1;
+        }
+
+        @keyframes crosshair-pulse {
+            0% { 
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 
+                    0 0 20px var(--neon-red),
+                    0 0 40px var(--neon-red),
+                    0 0 60px var(--neon-red);
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 
+                    0 0 25px var(--neon-red),
+                    0 0 50px var(--neon-red),
+                    0 0 75px var(--neon-red);
+            }
+        }
+
+        @keyframes line-glow {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes indicator-pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+
+        .scene-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 70%, transparent 100%);
+            padding: 25px 30px;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 2px solid rgba(255, 0, 51, 0.3);
+        }
+
+        .scene-title h2 {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .scene-title p {
+            font-size: 14px;
+            color: var(--neon-red);
+            letter-spacing: 1.5px;
+        }
+
+        .scene-stats {
+            display: flex;
+            gap: 25px;
+        }
+
+        .scene-stat {
+            text-align: center;
+            background: rgba(255, 0, 51, 0.1);
+            padding: 12px 18px;
+            border-radius: 6px;
+            min-width: 90px;
+            border: 1px solid rgba(255, 0, 51, 0.3);
+        }
+
+        .scene-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--neon-red);
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px var(--neon-red);
+        }
+
+        .scene-stat-label {
+            font-size: 11px;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .target-container {
+            background: linear-gradient(145deg, rgba(40, 0, 10, 0.95), rgba(30, 0, 5, 0.95));
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid rgba(255, 0, 51, 0.4);
+            box-shadow: 0 0 25px rgba(255, 0, 51, 0.2);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .target-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .target-subtitle {
+            font-size: 16px;
+            color: var(--neon-red);
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .target-options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .target-option {
+            background: linear-gradient(145deg, rgba(50, 0, 15, 0.8), rgba(35, 0, 10, 0.8));
+            border: 1px solid rgba(255, 0, 51, 0.3);
+            border-radius: 8px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .target-option:hover {
+            background: linear-gradient(145deg, rgba(70, 0, 20, 0.9), rgba(50, 0, 15, 0.9));
+            border-color: var(--neon-red-glow);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 0, 51, 0.3);
+        }
+
+        .target-option.active {
+            background: linear-gradient(145deg, rgba(90, 0, 25, 0.95), rgba(70, 0, 20, 0.95));
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+        }
+
+        .target-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .target-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 0, 51, 0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-red);
+            font-size: 16px;
+            border: 1px solid rgba(255, 0, 51, 0.4);
+        }
+
+        .target-details h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+
+        .damage-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .damage-value {
+            font-size: 14px;
+            color: var(--neon-red);
+            font-weight: bold;
+            min-width: 70px;
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+
+        .damage-bar {
+            width: 80px;
+            height: 6px;
+            background: rgba(100, 0, 20, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .damage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-red), var(--neon-red-glow));
+            border-radius: 3px;
+            box-shadow: 0 0 8px var(--neon-red);
+        }
+
+        .target-hotkey {
+            font-size: 13px;
+            color: #fff;
+            background: rgba(255, 0, 51, 0.3);
+            padding: 5px 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 0, 51, 0.5);
+            letter-spacing: 2px;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(145deg, var(--neon-red), var(--neon-dark-red));
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(255, 0, 51, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .confirm-btn:hover {
+            background: linear-gradient(145deg, var(--neon-red-glow), var(--neon-red));
+            box-shadow: 0 8px 25px rgba(255, 0, 51, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .edit-btn {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(200, 200, 200, 0.05));
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .edit-btn:hover {
+            background: linear-gradient(145deg, rgba(255, 0, 51, 0.2), rgba(200, 0, 40, 0.1));
+            border-color: var(--neon-red);
+            transform: translateY(-3px);
+        }
+
+        .system-status {
+            margin-top: auto;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 0, 51, 0.3);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background: rgba(255, 0, 51, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 0, 51, 0.2);
+        }
+
+        .status-label {
+            font-size: 11px;
+            color: #ccc;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .status-value {
+            font-size: 16px;
+            color: var(--neon-red);
+            font-weight: 800;
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+
+        /* Effects */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-red), transparent);
+            animation: scan 3s linear infinite;
+            z-index: 100;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        .glow-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 0, 51, 0.15) 0%, transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+            animation: glow-pulse 3s infinite alternate;
+        }
+
+        @keyframes glow-pulse {
+            0% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 0, 5, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--neon-red), var(--neon-red-glow));
+            border-radius: 4px;
+            box-shadow: 0 0 5px var(--neon-red);
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .container {
+                flex-direction: column;
+                min-height: auto;
+            }
+            
+            .left-panel, .center-panel, .right-panel {
+                max-height: none;
+                width: 100%;
+            }
+            
+            .center-panel {
+                height: 600px;
+                margin: 20px 0;
+            }
+            
+            .targeting-scene {
+                height: 550px;
+            }
+            
+            .hidden-character {
+                width: 400px;
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-line"></div>
+    <div class="glow-effect"></div>
+    
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="time-display">
+                <i class="fas fa-clock"></i>
+                <span>18:46</span>
+            </div>
+            
+            <h1 class="main-title">SELEÇÃO DE ALVO</h1>
+            
+            <div class="stats-container">
+                <div class="stat-card active">
+                    <div class="stat-header">
+                        <div class="stat-name">
+                            <i class="fas fa-crosshairs stat-icon"></i>
+                            Sensibilidade+
+                        </div>
+                        <div class="toggle-switch on" id="toggle-sensibilidade"></div>
+                    </div>
+                    <div class="stat-desc">Resposta ultrarrápida para mira precisa em combate intenso</div>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 96%"></div>
+                        </div>
+                        <div class="stat-value">96%</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-name">
+                            <i class="fas fa-shield-alt stat-icon"></i>
+                            Estabilidade
+                        </div>
+                        <div class="toggle-switch on" id="toggle-estabilidade"></div>
+                    </div>
+                    <div class="stat-desc">Precisão constante máxima e controle de recuo otimizado</div>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 88%"></div>
+                        </div>
+                        <div class="stat-value">88%</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-name">
+                            <i class="fas fa-search stat-icon"></i>
+                            Rastreamento
+                        </div>
+                        <div class="toggle-switch" id="toggle-rastreamento"></div>
+                    </div>
+                    <div class="stat-desc">Visão aprimorada e detecção automática de ameaças</div>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 92%"></div>
+                        </div>
+                        <div class="stat-value">92%</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-name">
+                            <i class="fas fa-bolt stat-icon"></i>
+                            Auto-Mira
+                        </div>
+                        <div class="toggle-switch on" id="toggle-automira"></div>
+                    </div>
+                    <div class="stat-desc">Assistência de mira avançada para alvos em movimento</div>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 84%"></div>
+                        </div>
+                        <div class="stat-value">84%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center Panel with Hidden Character Behind Crosshair -->
+        <div class="center-panel">
+            <div class="targeting-scene">
+                <div class="scene-background"></div>
+                
+                <!-- Hidden Character BEHIND crosshair -->
+                <div class="hidden-character">
+                    <div class="character-silhouette"></div>
+                </div>
+                
+                <!-- Crosshair ON TOP -->
+                <div class="crosshair-system">
+                    <div class="headshot-indicator">HEADSHOT TARGET</div>
+                    <div class="crosshair">
+                        <div class="crosshair-center"></div>
+                        <div class="crosshair-dot"></div>
+                        <div class="crosshair-line line-top"></div>
+                        <div class="crosshair-line line-bottom"></div>
+                        <div class="crosshair-line line-left"></div>
+                        <div class="crosshair-line line-right"></div>
+                    </div>
+                    <div class="target-status">TARGET BEHIND CROSSHAIR</div>
+                </div>
+                
+                <div class="scene-info">
+                    <div class="scene-title">
+                        <h2>GHOST - TARGET LOCKED</h2>
+                        <p>CALL OF DUTY: MODERN WARFARE II | ENEMY OPERATOR</p>
+                    </div>
+                    <div class="scene-stats">
+                        <div class="scene-stat">
+                            <div class="scene-stat-value">200%</div>
+                            <div class="scene-stat-label">HEADSHOT DMG</div>
+                        </div>
+                        <div class="scene-stat">
+                            <div class="scene-stat-value">94%</div>
+                            <div class="scene-stat-label">ACCURACY</div>
+                        </div>
+                        <div class="scene-stat">
+                            <div class="scene-stat-value">LETHAL</div>
+                            <div class="scene-stat-label">THREAT LEVEL</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="target-container">
+                <h2 class="target-title">DEFINA O TIPO DE HS DESEJADO</h2>
+                <p class="target-subtitle">Selecione a zona de impacto prioritária</p>
+                
+                <div class="target-options">
+                    <div class="target-option active">
+                        <div class="target-info">
+                            <div class="target-icon">
+                                <i class="fas fa-skull"></i>
+                            </div>
+                            <div class="target-details">
+                                <h3>Cabeça (HEADSHOT)</h3>
+                                <div class="damage-display">
+                                    <div class="damage-bar">
+                                        <div class="damage-fill" style="width: 100%"></div>
+                                    </div>
+                                    <div class="damage-value">200% DMG</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="target-hotkey">HS-1</span>
+                    </div>
+                    
+                    <div class="target-option">
+                        <div class="target-info">
+                            <div class="target-icon">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="target-details">
+                                <h3>Tórax Superior</h3>
+                                <div class="damage-display">
+                                    <div class="damage-bar">
+                                        <div class="damage-fill" style="width: 75%"></div>
+                                    </div>
+                                    <div class="damage-value">150% DMG</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="target-hotkey">HS-2</span>
+                    </div>
+                    
+                    <div class="target-option">
+                        <div class="target-info">
+                            <div class="target-icon">
+                                <i class="fas fa-user-injured"></i>
+                            </div>
+                            <div class="target-details">
+                                <h3>Abdômen</h3>
+                                <div class="damage-display">
+                                    <div class="damage-bar">
+                                        <div class="damage-fill" style="width: 50%"></div>
+                                    </div>
+                                    <div class="damage-value">100% DMG</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="target-hotkey">HS-3</span>
+                    </div>
+                    
+                    <div class="target-option">
+                        <div class="target-info">
+                            <div class="target-icon">
+                                <i class="fas fa-running"></i>
+                            </div>
+                            <div class="target-details">
+                                <h3>Membros</h3>
+                                <div class="damage-display">
+                                    <div class="damage-bar">
+                                        <div class="damage-fill" style="width: 35%"></div>
+                                    </div>
+                                    <div class="damage-value">70% DMG</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="target-hotkey">HS-4</span>
+                    </div>
+                    
+                    <div class="target-option">
+                        <div class="target-info">
+                            <div class="target-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="target-details">
+                                <h3>Automático (IA)</h3>
+                                <div class="damage-display">
+                                    <div class="damage-bar">
+                                        <div class="damage-fill" style="width: 60%"></div>
+                                    </div>
+                                    <div class="damage-value">120% DMG</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="target-hotkey">HS-A</span>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn confirm-btn" id="confirm-btn">
+                        <i class="fas fa-crosshairs"></i>
+                        CONFIRMAR ALVO
+                    </button>
+                    <button class="action-btn edit-btn" id="edit-btn">
+                        <i class="fas fa-edit"></i>
+                        EDITAR
+                    </button>
+                </div>
+                
+                <div class="system-status">
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="status-label">Status do Sistema</span>
+                            <span class="status-value" id="system-status">TARGETING</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Carga do Sistema</span>
+                            <span class="status-value" id="system-load">86%</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Alvo Atual</span>
+                            <span class="status-value" id="current-target">HEADSHOT</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Distância</span>
+                            <span class="status-value" id="target-distance">47m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.querySelector('.time-display span').textContent = `${hours}:${minutes}`;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 60000);
+        
+        // Toggle switches
+        const toggleSwitches = document.querySelectorAll('.toggle-switch');
+        toggleSwitches.forEach(switchEl => {
+            switchEl.addEventListener('click', function() {
+                this.classList.toggle('on');
+                const statCard = this.closest('.stat-card');
+                
+                updateSystemStatus();
+                
+                if (this.classList.contains('on')) {
+                    statCard.style.boxShadow = '0 0 25px rgba(255, 0, 51, 0.5)';
+                    statCard.style.borderColor = '#fff';
+                } else {
+                    statCard.style.boxShadow = 'none';
+                    statCard.style.borderColor = 'rgba(255, 0, 51, 0.3)';
+                }
+            });
+        });
+        
+        // Target selection
+        const targetOptions = document.querySelectorAll('.target-option');
+        targetOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                targetOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                const targetName = this.querySelector('h3').textContent;
+                
+                // Update displays
+                const targetMap = {
+                    'Cabeça': 'HEADSHOT',
+                    'Tórax': 'TORAX',
+                    'Abdômen': 'ABDOMEN',
+                    'Membros': 'MEMBROS',
+                    'Automático': 'AUTO'
+                };
+                
+                for (const [key, value] of Object.entries(targetMap)) {
+                    if (targetName.includes(key)) {
+                        document.getElementById('current-target').textContent = value;
+                        break;
+                    }
+                }
+                
+                // Update character opacity based on target
+                const hiddenCharacter = document.querySelector('.hidden-character');
+                if (targetName.includes('Cabeça')) {
+                    hiddenCharacter.style.opacity = '0.8';
+                    hiddenCharacter.style.filter = 'blur(0.5px) contrast(1.4) brightness(0.9)';
+                } else {
+                    hiddenCharacter.style.opacity = '0.6';
+                    hiddenCharacter.style.filter = 'blur(1px) contrast(1.2) brightness(0.7)';
+                }
+                
+                // Update crosshair
+                const crosshairCenter = document.querySelector('.crosshair-center');
+                if (targetName.includes('Cabeça')) {
+                    crosshairCenter.style.background = 'var(--neon-red)';
+                    crosshairCenter.style.boxShadow = 
+                        '0 0 20px var(--neon-red), ' +
+                        '0 0 40px var(--neon-red), ' +
+                        '0 0 60px var(--neon-red)';
+                } else {
+                    crosshairCenter.style.background = '#ff6600';
+                    crosshairCenter.style.boxShadow = 
+                        '0 0 20px #ff6600, ' +
+                        '0 0 40px #ff6600, ' +
+                        '0 0 60px #ff6600';
+                }
+            });
+        });
+        
+        // Stat card selection
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('toggle-switch')) {
+                    statCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Confirm button
+        document.getElementById('confirm-btn').addEventListener('click', function() {
+            const activeTarget = document.querySelector('.target-option.active h3').textContent;
+            
+            // Visual feedback
+            this.innerHTML = '<i class="fas fa-bullseye"></i> ALVO CONFIRMADO!';
+            this.style.background = 'linear-gradient(145deg, #00ff66, #00cc52)';
+            this.style.boxShadow = '0 5px 25px rgba(0, 255, 102, 0.5)';
+            
+            // Crosshair feedback
+            const crosshairCenter = document.querySelector('.crosshair-center');
+            const originalColor = crosshairCenter.style.background;
+            
+            crosshairCenter.style.background = '#00ff66';
+            crosshairCenter.style.boxShadow = 
+                '0 0 25px #00ff66, ' +
+                '0 0 50px #00ff66, ' +
+                '0 0 75px #00ff66';
+            
+            // Character feedback
+            const hiddenCharacter = document.querySelector('.hidden-character');
+            hiddenCharacter.style.filter = 'blur(0px) contrast(1.5) brightness(1.2)';
+            
+            // Update system status
+            document.getElementById('system-status').textContent = 'TARGET LOCKED';
+            document.getElementById('system-status').style.color = '#00ff66';
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-crosshairs"></i> CONFIRMAR ALVO';
+                this.style.background = 'linear-gradient(145deg, var(--neon-red), var(--neon-dark-red))';
+                this.style.boxShadow = '0 5px 20px rgba(255, 0, 51, 0.4)';
+                
+                const activeTargetName = document.querySelector('.target-option.active h3').textContent;
+                if (activeTargetName.includes('Cabeça')) {
+                    crosshairCenter.style.background = 'var(--neon-red)';
+                    crosshairCenter.style.boxShadow = 
+                        '0 0 20px var(--neon-red), ' +
+                        '0 0 40px var(--neon-red), ' +
+                        '0 0 60px var(--neon-red)';
+                } else {
+                    crosshairCenter.style.background = '#ff6600';
+                    crosshairCenter.style.boxShadow = 
+                        '0 0 20px #ff6600, ' +
+                        '0 0 40px #ff6600, ' +
+                        '0 0 60px #ff6600';
+                }
+                
+                hiddenCharacter.style.filter = 'blur(1px) contrast(1.3) brightness(0.8)';
+                
+                document.getElementById('system-status').textContent = 'TARGETING';
+                document.getElementById('system-status').style.color = 'var(--neon-red)';
+            }, 3000);
+        });
+        
+        // Edit button
+        document.getElementById('edit-btn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> EDITANDO...';
+            this.style.borderColor = 'var(--neon-red)';
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-edit"></i> EDITAR';
+                this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                alert('Modo de edição ativado para configurações avançadas de mira');
+            }, 1500);
+        });
+        
+        // Update system status
+        function updateSystemStatus() {
+            const onToggles = document.querySelectorAll('.toggle-switch.on').length;
+            const totalToggles = toggleSwitches.length;
+            const loadPercentage = Math.round((onToggles / totalToggles) * 40 + 60);
+            
+            document.getElementById('system-load').textContent = `${loadPercentage}%`;
+            
+            if (loadPercentage > 90) {
+                document.getElementById('system-status').textContent = 'OVERLOAD';
+                document.getElementById('system-status').style.color = '#ff3300';
+            } else if (loadPercentage > 80) {
+                document.getElementById('system-status').textContent = 'HIGH LOAD';
+                document.getElementById('system-status').style.color = '#ff9900';
+            } else {
+                document.getElementById('system-status').textContent = 'TARGETING';
+                document.getElementById('system-status').style.color = 'var(--neon-red)';
+            }
+        }
+        
+        // Initialize
+        updateSystemStatus();
+        
+        // Typewriter effect for title
+        const title = document.querySelector('.main-title');
+        const originalText = "SELEÇÃO DE ALVO";
+        title.textContent = '';
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < originalText.length) {
+                title.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 80);
+            }
+        }
+        
+        // Start effects
+        window.addEventListener('load', () => {
+            setTimeout(typeWriter, 500);
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Number keys 1-5 for target selection
+            if (e.key >= '1' && e.key <= '5') {
+                const index = parseInt(e.key) - 1;
+                if (targetOptions[index]) {
+                    targetOptions[index].click();
+                }
+            }
+            
+            // Space to confirm
+            if (e.code === 'Space') {
+                document.getElementById('confirm-btn').click();
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
