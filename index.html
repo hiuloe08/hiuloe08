@@ -338,6 +338,290 @@
       </div>
     </div>
 
+    <!-- PAGE: AIM LAB -->
+    <div class="page" id="page-aimlab">
+      <div class="page-scroll">
+        <div class="section-header">
+          <div class="section-title-lg">AIM LAB</div>
+          <div class="section-sub">Hỗ trợ kéo tâm Free Fire</div>
+        </div>
+
+        <!-- STATUS CARD -->
+        <div class="aim-status-card">
+          <div class="aim-crosshair-wrap">
+            <div class="aim-crosshair" id="aim-crosshair-preview">
+              <div class="ch-ring"></div>
+              <div class="ch-h"></div><div class="ch-v"></div><div class="ch-dot"></div>
+            </div>
+          </div>
+          <div class="aim-status-info">
+            <div class="aim-status-badge" id="aim-status-badge">● READY</div>
+            <div class="aim-mode-label" id="aim-mode-label">Chế độ: Cân bằng</div>
+            <div class="aim-score-row">
+              <span class="aim-score-lbl">AIM SCORE</span>
+              <span class="aim-score-val" id="aim-score-val">78</span>
+            </div>
+          </div>
+          <button class="aim-apply-btn-mini" onclick="applyAimSettings()">APPLY</button>
+        </div>
+
+        <!-- 1. AIM LOCK v1–v4 -->
+        <div class="aim-section-title">🔒 Aim Lock — Khoá tâm</div>
+        <div class="aimlock-grid">
+          <button class="aimlock-btn" id="al-v1" onclick="setAimLock(this,'v1')">
+            <span class="al-ver">v1</span><span class="al-name">Nhẹ</span><span class="al-desc">Hỗ trợ nhẹ</span>
+          </button>
+          <button class="aimlock-btn" id="al-v2" onclick="setAimLock(this,'v2')">
+            <span class="al-ver">v2</span><span class="al-name">Vừa</span><span class="al-desc">Cân bằng</span>
+          </button>
+          <button class="aimlock-btn active" id="al-v3" onclick="setAimLock(this,'v3')">
+            <span class="al-ver">v3</span><span class="al-name">Mạnh</span><span class="al-desc">Bám tốt</span>
+          </button>
+          <button class="aimlock-btn" id="al-v4" onclick="setAimLock(this,'v4')">
+            <span class="al-ver">v4</span><span class="al-name">MAX</span><span class="al-desc">Pro lock</span>
+          </button>
+        </div>
+        <div class="aimlock-detail" id="aimlock-detail">
+          <div class="ald-row"><span>Phạm vi khóa (Lock radius)</span><span class="ald-val" id="al-radius">35px</span></div>
+          <div class="ald-row"><span>Tốc độ bám (Track speed)</span><span class="ald-val" id="al-speed">Medium</span></div>
+          <div class="ald-row"><span>Ưu tiên (Priority)</span><span class="ald-val" id="al-priority">Đầu + Ngực</span></div>
+        </div>
+
+        <!-- 2. NHẸ TÂM -->
+        <div class="aim-section-title">🪶 Nhẹ tâm — Smooth Aim</div>
+        <div class="smooth-card">
+          <div class="smooth-preview-row">
+            <div class="smooth-bar-wrap">
+              <div class="smooth-bar-track">
+                <div class="smooth-bar-fill" id="smooth-fill" style="width:60%"></div>
+              </div>
+              <div class="smooth-labels"><span>Cứng</span><span>Mượt</span></div>
+            </div>
+            <span class="smooth-pct" id="smooth-pct">60%</span>
+          </div>
+          <input type="range" min="0" max="100" value="60" class="sens-slider smooth-slider" oninput="updateSmooth(this.value)">
+          <div class="smooth-presets">
+            <button class="smooth-pre-btn" onclick="setSmooth(this,20)">Chắc tay</button>
+            <button class="smooth-pre-btn active" onclick="setSmooth(this,60)">Cân bằng</button>
+            <button class="smooth-pre-btn" onclick="setSmooth(this,85)">Siêu mượt</button>
+          </div>
+        </div>
+
+        <!-- 3. AIM ASSIST -->
+        <div class="aim-section-title">🤖 Aim Assist — Hỗ trợ ngắm</div>
+        <div class="assist-card">
+          <div class="assist-toggle-row">
+            <div><div class="assist-title">Aim Assist</div><div class="assist-sub">Hỗ trợ kéo tâm tự nhiên khi ngắm</div></div>
+            <label class="toggle"><input type="checkbox" id="assist-toggle" checked onchange="toggleAssist(this)"><span class="toggle-track"></span></label>
+          </div>
+          <div class="assist-options" id="assist-options">
+            <div class="assist-opt-row">
+              <span>Phạm vi hỗ trợ</span>
+              <div class="assist-lvl-btns">
+                <button class="assist-lvl active" onclick="setAssistLevel(this,'low')">Thấp</button>
+                <button class="assist-lvl" onclick="setAssistLevel(this,'mid')">Trung</button>
+                <button class="assist-lvl" onclick="setAssistLevel(this,'high')">Cao</button>
+              </div>
+            </div>
+            <div class="assist-opt-row">
+              <span>Ưu tiên mục tiêu</span>
+              <div class="assist-lvl-btns">
+                <button class="assist-target active" onclick="setAssistTarget(this,'head')">Đầu</button>
+                <button class="assist-target" onclick="setAssistTarget(this,'body')">Ngực</button>
+                <button class="assist-target" onclick="setAssistTarget(this,'auto')">Auto</button>
+              </div>
+            </div>
+            <div class="assist-opt-row">
+              <span>Kích hoạt khi</span>
+              <div class="assist-lvl-btns">
+                <button class="assist-when active" onclick="setAssistWhen(this,'ads')">ADS</button>
+                <button class="assist-when" onclick="setAssistWhen(this,'always')">Luôn</button>
+                <button class="assist-when" onclick="setAssistWhen(this,'scope')">Scope</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. AIM HOLD -->
+        <div class="aim-section-title">🖐️ Aim Hold — Giữ tâm</div>
+        <div class="hold-card">
+          <div class="hold-toggle-row">
+            <div><div class="hold-title">Aim Hold Mode</div><div class="hold-sub">Giữ tâm ổn định khi bắn liên tục</div></div>
+            <label class="toggle"><input type="checkbox" id="hold-toggle" onchange="toggleHold(this)"><span class="toggle-track"></span></label>
+          </div>
+          <div class="hold-options" id="hold-options" style="display:none;">
+            <div class="sens-row" style="margin-top:12px;">
+              <span class="sens-label">Độ giữ (Hold strength) <span class="sens-val" id="sv-hold">70</span></span>
+              <input type="range" min="0" max="100" value="70" class="sens-slider" oninput="updateSens('hold',this.value)">
+            </div>
+            <div class="hold-mode-row">
+              <span class="gyro-mode-lbl">Chế độ giữ:</span>
+              <div class="gyro-mode-btns">
+                <button class="gyro-mode-btn active" onclick="setHoldMode(this,'tap')">Nhấn giữ</button>
+                <button class="gyro-mode-btn" onclick="setHoldMode(this,'toggle')">Bật/Tắt</button>
+                <button class="gyro-mode-btn" onclick="setHoldMode(this,'auto')">Tự động</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. SENSITIVITY (nhạy) -->
+        <div class="aim-section-title">🎚️ Nhạy — Sensitivity Tuning</div>
+        <div class="sens-preset-grid">
+          <button class="sens-preset-btn active" onclick="applySensPreset(this,'balanced')">
+            <span class="sp-icon">⚖️</span><span class="sp-name">Cân bằng</span><span class="sp-desc">Balanced</span>
+          </button>
+          <button class="sens-preset-btn" onclick="applySensPreset(this,'sniper')">
+            <span class="sp-icon">🎯</span><span class="sp-name">Sniper</span><span class="sp-desc">Ít giật</span>
+          </button>
+          <button class="sens-preset-btn" onclick="applySensPreset(this,'rush')">
+            <span class="sp-icon">⚡</span><span class="sp-name">Rush</span><span class="sp-desc">Phản xạ nhanh</span>
+          </button>
+          <button class="sens-preset-btn" onclick="applySensPreset(this,'pro')">
+            <span class="sp-icon">👑</span><span class="sp-name">Pro</span><span class="sp-desc">Kéo tâm chuẩn</span>
+          </button>
+        </div>
+        <div class="sens-sliders">
+          <div class="sens-row">
+            <span class="sens-label">Tổng quát <span class="sens-val" id="sv-general">100</span></span>
+            <input type="range" min="1" max="200" value="100" id="sr-general" class="sens-slider" oninput="updateSens('general',this.value)">
+          </div>
+          <div class="sens-row">
+            <span class="sens-label">ADS <span class="sens-val" id="sv-ads">80</span></span>
+            <input type="range" min="1" max="200" value="80" id="sr-ads" class="sens-slider" oninput="updateSens('ads',this.value)">
+          </div>
+          <div class="sens-row">
+            <span class="sens-label">Scope 2x <span class="sens-val" id="sv-scope2">65</span></span>
+            <input type="range" min="1" max="200" value="65" id="sr-scope2" class="sens-slider" oninput="updateSens('scope2',this.value)">
+          </div>
+          <div class="sens-row">
+            <span class="sens-label">Scope 4x <span class="sens-val" id="sv-scope4">50</span></span>
+            <input type="range" min="1" max="200" value="50" id="sr-scope4" class="sens-slider" oninput="updateSens('scope4',this.value)">
+          </div>
+          <div class="sens-row">
+            <span class="sens-label">Scope 8x <span class="sens-val" id="sv-scope8">35</span></span>
+            <input type="range" min="1" max="200" value="35" id="sr-scope8" class="sens-slider" oninput="updateSens('scope8',this.value)">
+          </div>
+        </div>
+
+        <!-- 6. BÁM ĐẦU / HEAD LOCK -->
+        <div class="aim-section-title">💀 Bám đầu — Head Tracking</div>
+        <div class="headlock-card">
+          <div class="headlock-visual">
+            <div class="headlock-target" id="headlock-target">
+              <div class="ht-head"></div>
+              <div class="ht-cross ht-cross-h"></div>
+              <div class="ht-cross ht-cross-v"></div>
+              <div class="ht-ring" id="ht-ring"></div>
+            </div>
+            <div class="headlock-right">
+              <div class="headlock-toggle-row">
+                <div>
+                  <div class="hold-title">Head Lock</div>
+                  <div class="hold-sub">Khoá tâm vào đầu đối thủ</div>
+                </div>
+                <label class="toggle"><input type="checkbox" id="headlock-toggle" onchange="toggleHeadLock(this)"><span class="toggle-track"></span></label>
+              </div>
+              <div class="headlock-lvl-wrap" id="headlock-lvl-wrap">
+                <div class="gyro-mode-lbl" style="margin-top:10px;">Cấp độ bám:</div>
+                <div class="headlock-lvl-row">
+                  <button class="hl-lvl-btn active" onclick="setHeadLockLevel(this,1)">Lv1</button>
+                  <button class="hl-lvl-btn" onclick="setHeadLockLevel(this,2)">Lv2</button>
+                  <button class="hl-lvl-btn" onclick="setHeadLockLevel(this,3)">Lv3</button>
+                  <button class="hl-lvl-btn" onclick="setHeadLockLevel(this,4)">Lv4</button>
+                  <button class="hl-lvl-btn" onclick="setHeadLockLevel(this,5)">MAX</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="headlock-stats" id="headlock-stats">
+            <div class="hs-item"><span>Vùng bắt đầu (Zone)</span><span class="hs-val" id="hl-zone">±20px</span></div>
+            <div class="hs-item"><span>Tốc độ bám (Speed)</span><span class="hs-val" id="hl-speed">Nhẹ</span></div>
+            <div class="hs-item"><span>Độ chính xác (Accuracy)</span><span class="hs-val" id="hl-acc">85%</span></div>
+          </div>
+        </div>
+
+        <!-- 7. GYROSCOPE -->
+        <div class="aim-section-title">🔄 Gyroscope — Con quay hồi chuyển</div>
+        <div class="gyro-card">
+          <div class="gyro-toggle-row">
+            <div><div class="gyro-title">Bật Gyroscope Aim</div><div class="gyro-sub">Nghiêng máy để kéo tâm</div></div>
+            <label class="toggle"><input type="checkbox" id="gyro-toggle" onchange="toggleGyro(this)"><span class="toggle-track"></span></label>
+          </div>
+          <div class="gyro-options" id="gyro-options" style="display:none;">
+            <div class="sens-row">
+              <span class="sens-label">Nhạy dọc <span class="sens-val" id="sv-gyro-v">60</span></span>
+              <input type="range" min="1" max="150" value="60" id="sr-gyro-v" class="sens-slider gyro-slider" oninput="updateSens('gyro-v',this.value)">
+            </div>
+            <div class="sens-row">
+              <span class="sens-label">Nhạy ngang <span class="sens-val" id="sv-gyro-h">55</span></span>
+              <input type="range" min="1" max="150" value="55" id="sr-gyro-h" class="sens-slider gyro-slider" oninput="updateSens('gyro-h',this.value)">
+            </div>
+            <div class="gyro-mode-row">
+              <span class="gyro-mode-lbl">Kích hoạt:</span>
+              <div class="gyro-mode-btns">
+                <button class="gyro-mode-btn active" onclick="setGyroMode(this,'always')">Luôn bật</button>
+                <button class="gyro-mode-btn" onclick="setGyroMode(this,'ads')">Khi ADS</button>
+                <button class="gyro-mode-btn" onclick="setGyroMode(this,'scope')">Khi scope</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. TOUCH LATENCY -->
+        <div class="aim-section-title">⚡ Touch Latency — Giảm lag chạm</div>
+        <div class="touch-latency-card">
+          <div class="tl-gauge-row">
+            <div class="tl-gauge">
+              <svg viewBox="0 0 80 50" width="90">
+                <path d="M10 45 A35 35 0 0 1 70 45" fill="none" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+                <path d="M10 45 A35 35 0 0 1 70 45" fill="none" stroke="#00ff88" stroke-width="7" stroke-linecap="round"
+                  stroke-dasharray="110" id="tl-gauge-arc" stroke-dashoffset="40"/>
+              </svg>
+              <div class="tl-gauge-val" id="tl-gauge-val">12ms</div>
+            </div>
+            <div class="tl-info">
+              <div class="tl-info-title">Touch Latency</div>
+              <div class="tl-info-sub" id="tl-status-text">TỐT — Good</div>
+              <button class="tl-optimize-btn" onclick="optimizeTouchLatency()">⚡ TỐI ƯU NGAY</button>
+            </div>
+          </div>
+          <div class="tl-options">
+            <div class="tl-opt-row"><span>Multi-touch nhanh</span><label class="toggle"><input type="checkbox" checked onchange="showToast('Multi-touch '+(this.checked?'bật':'tắt'))"><span class="toggle-track"></span></label></div>
+            <div class="tl-opt-row"><span>Lọc chạm nhầm</span><label class="toggle"><input type="checkbox" checked onchange="showToast('Lọc chạm '+(this.checked?'bật':'tắt'))"><span class="toggle-track"></span></label></div>
+            <div class="tl-opt-row"><span>Tăng tốc điểm chạm</span><label class="toggle"><input type="checkbox" onchange="showToast('Touch boost '+(this.checked?'bật':'tắt'))"><span class="toggle-track"></span></label></div>
+          </div>
+        </div>
+
+        <!-- 9. LAYOUT NGÓN -->
+        <div class="aim-section-title">✋ Layout Ngón Tay</div>
+        <div class="layout-grid">
+          <button class="layout-btn" onclick="selectLayout(this,'2')">
+            <div class="layout-fingers"><div class="finger f-thumb-l"></div><div class="finger f-thumb-r"></div></div>
+            <span class="layout-name">2 Ngón</span><span class="layout-desc">Người mới</span>
+          </button>
+          <button class="layout-btn" onclick="selectLayout(this,'3')">
+            <div class="layout-fingers"><div class="finger f-thumb-l"></div><div class="finger f-index"></div><div class="finger f-thumb-r"></div></div>
+            <span class="layout-name">3 Ngón</span><span class="layout-desc">Phổ biến</span>
+          </button>
+          <button class="layout-btn active" onclick="selectLayout(this,'4')">
+            <div class="layout-fingers"><div class="finger f-thumb-l"></div><div class="finger f-index-l"></div><div class="finger f-index-r"></div><div class="finger f-thumb-r"></div></div>
+            <span class="layout-name">4 Ngón</span><span class="layout-desc">Pro aim</span>
+          </button>
+        </div>
+        <div class="layout-tips" id="layout-tips">
+          <div class="tip-title">💡 Mẹo 4 ngón:</div>
+          <div class="tip-text">Ngón cái trái: di chuyển · Ngón cái phải: bắn · Trỏ trái: nhảy/crouch · Trỏ phải: scope — Kéo tâm mượt hơn 40%</div>
+        </div>
+
+        <!-- APPLY BUTTON -->
+        <button class="aim-apply-btn-full" onclick="applyAimSettings()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          ÁP DỤNG TẤT CẢ CÀI ĐẶT AIM
+        </button>
+      </div>
+    </div>
+
     <!-- PAGE: SETTINGS -->
     <div class="page" id="page-settings">
       <div class="page-scroll">
@@ -426,6 +710,10 @@
     <button class="bnav-btn" data-page="vip" onclick="switchPage('vip')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="2"/></svg>
       <span>VIP</span>
+    </button>
+    <button class="bnav-btn" data-page="aimlab" onclick="switchPage('aimlab')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><line x1="12" y1="3" x2="12" y2="7" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="7" y2="12" stroke="currentColor" stroke-width="2"/><line x1="17" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+      <span>AIM LAB</span>
     </button>
     <button class="bnav-btn" data-page="settings" onclick="switchPage('settings')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>
