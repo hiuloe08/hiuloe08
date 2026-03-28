@@ -486,3 +486,275 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   font-family: var(--font-main); font-size: 32px; font-weight: 900;
   color: var(--text); margin-top: 8px;
 }
+
+/* ============================================================
+   AIM LAB STYLES
+   ============================================================ */
+
+/* Crosshair preview card */
+.aim-crosshair-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.aim-crosshair-wrap {
+  width: 70px; height: 70px;
+  background: #111;
+  border-radius: 50%;
+  border: 1px solid #00ff8822;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.aim-crosshair { position: relative; width: 40px; height: 40px; }
+.ch-h { position:absolute; top:50%; left:0; right:0; height:2px; background:#00ff88; transform:translateY(-50%); }
+.ch-v { position:absolute; left:50%; top:0; bottom:0; width:2px; background:#00ff88; transform:translateX(-50%); }
+.ch-dot { position:absolute; top:50%; left:50%; width:5px; height:5px; background:#ff4d6a; border-radius:50%; transform:translate(-50%,-50%); }
+.aim-status-row { display:flex; flex-direction:column; gap:6px; }
+.aim-status-badge { color:#00ff88; font-size:12px; font-weight:700; letter-spacing:1px; }
+.aim-mode-label { color:#555; font-size:11px; }
+
+/* Section titles */
+.aim-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00ff88;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 20px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #00ff8822;
+}
+
+/* Sensitivity presets */
+.sens-preset-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 8px;
+  margin-bottom: 16px;
+}
+.sens-preset-btn {
+  background: #0f0f0f; border: 1px solid #1e1e1e; border-radius: 10px;
+  padding: 10px 4px; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; cursor: pointer; transition: all .2s;
+}
+.sens-preset-btn.active { border-color: #00ff88; background: #00ff8811; }
+.sp-icon { font-size: 18px; }
+.sp-name { font-size: 11px; font-weight: 700; color: #ddd; }
+.sp-desc { font-size: 9px; color: #555; text-align: center; line-height: 1.3; }
+
+/* Sliders */
+.sens-sliders { background: #0a0a0a; border-radius: 12px; padding: 14px; border: 1px solid #151515; }
+.sens-row { margin-bottom: 14px; }
+.sens-row:last-child { margin-bottom: 0; }
+.sens-label { display:flex; justify-content:space-between; font-size:11px; color:#888; margin-bottom:6px; }
+.sens-val { color:#00ff88; font-weight:700; font-family:'Share Tech Mono',monospace; }
+.sens-slider {
+  -webkit-appearance: none; width: 100%; height: 4px;
+  background: linear-gradient(to right, #00ff88 var(--pct,50%), #1e1e1e var(--pct,50%));
+  border-radius: 2px; outline: none; cursor: pointer;
+}
+.sens-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: #00ff88;
+  box-shadow: 0 0 6px #00ff8866; cursor: pointer;
+}
+
+/* Gyroscope card */
+.gyro-card { background:#0a0a0a; border:1px solid #151515; border-radius:12px; padding:14px; }
+.gyro-toggle-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+.gyro-title { font-size:13px; font-weight:600; color:#ddd; }
+.gyro-sub { font-size:10px; color:#555; margin-top:2px; }
+.gyro-options { margin-top:14px; padding-top:14px; border-top:1px solid #1a1a1a; }
+.gyro-slider { background: linear-gradient(to right, #4df0ff 50%, #1e1e1e 50%); }
+.gyro-slider::-webkit-slider-thumb { background:#4df0ff; box-shadow:0 0 6px #4df0ff66; }
+.gyro-mode-row { margin-top:12px; }
+.gyro-mode-lbl { font-size:10px; color:#666; display:block; margin-bottom:6px; }
+.gyro-mode-btns { display:flex; gap:6px; }
+.gyro-mode-btn {
+  flex:1; padding:7px 4px; border-radius:8px; border:1px solid #1e1e1e;
+  background:#111; color:#666; font-size:10px; cursor:pointer; transition:all .2s;
+}
+.gyro-mode-btn.active { border-color:#4df0ff; color:#4df0ff; background:#4df0ff11; }
+
+/* Touch latency */
+.touch-latency-card { background:#0a0a0a; border:1px solid #151515; border-radius:12px; padding:14px; }
+.tl-gauge-row { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.tl-gauge { position:relative; width:100px; flex-shrink:0; }
+.tl-gauge-val {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  color:#00ff88; font-size:14px; font-weight:700; font-family:'Share Tech Mono',monospace;
+}
+.tl-info-title { font-size:13px; font-weight:700; color:#ddd; margin-bottom:4px; }
+.tl-info-sub { font-size:10px; color:#00ff88; margin-bottom:10px; }
+.tl-optimize-btn {
+  background:linear-gradient(135deg,#00ff88,#00cc66); color:#000;
+  border:none; border-radius:8px; padding:8px 14px;
+  font-size:11px; font-weight:700; cursor:pointer; letter-spacing:.5px;
+}
+.tl-options { border-top:1px solid #1a1a1a; padding-top:12px; display:flex; flex-direction:column; gap:10px; }
+.tl-opt-row { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#888; }
+
+/* Layout */
+.layout-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.layout-btn {
+  background:#0f0f0f; border:1px solid #1e1e1e; border-radius:12px;
+  padding:12px 6px; display:flex; flex-direction:column;
+  align-items:center; gap:6px; cursor:pointer; transition:all .2s;
+}
+.layout-btn.active { border-color:#ffe94d; background:#ffe94d11; }
+.layout-fingers { display:flex; gap:4px; align-items:flex-end; height:28px; }
+.finger { width:8px; border-radius:4px 4px 2px 2px; background:#333; }
+.f-thumb-l, .f-thumb-r { height:20px; background:#555; }
+.f-index { height:26px; background:#00ff88; }
+.f-index-l, .f-index-r { height:24px; background:#4df0ff; }
+.layout-btn.active .finger { background:#ffe94d88; }
+.layout-btn.active .f-thumb-l, .layout-btn.active .f-thumb-r { background:#ffe94d; }
+.layout-name { font-size:12px; font-weight:700; color:#ddd; }
+.layout-desc { font-size:9px; color:#555; text-align:center; }
+.layout-tips {
+  background:#ffe94d0d; border:1px solid #ffe94d22;
+  border-radius:10px; padding:12px; margin-bottom:20px;
+}
+.tip-title { font-size:11px; font-weight:700; color:#ffe94d; margin-bottom:4px; }
+.tip-text { font-size:11px; color:#888; line-height:1.5; }
+
+/* Apply button */
+.aim-apply-btn {
+  width:100%; padding:15px; background:linear-gradient(135deg,#00ff88,#00cc66);
+  border:none; border-radius:12px; color:#000; font-size:14px; font-weight:700;
+  letter-spacing:1px; cursor:pointer; display:flex; align-items:center;
+  justify-content:center; gap:8px; margin-bottom:24px;
+  box-shadow: 0 4px 20px #00ff8833;
+}
+
+/* Bottom nav 6 items — make smaller */
+.bottom-nav { padding: 6px 2px; }
+.bnav-btn { padding: 6px 2px; font-size: 9px; }
+
+/* ── AIM STATUS CARD ── */
+.aim-status-card {
+  display:flex; align-items:center; gap:14px;
+  background:#0a0a0a; border:1px solid #00ff8822;
+  border-radius:14px; padding:16px; margin-bottom:20px;
+}
+.aim-status-info { flex:1; }
+.aim-status-badge { color:#00ff88; font-size:11px; font-weight:700; letter-spacing:1px; display:block; margin-bottom:3px; }
+.aim-mode-label { color:#555; font-size:10px; display:block; margin-bottom:8px; }
+.aim-score-row { display:flex; align-items:baseline; gap:6px; }
+.aim-score-lbl { font-size:9px; color:#444; letter-spacing:1px; text-transform:uppercase; }
+.aim-score-val { font-size:22px; font-weight:900; color:#00ff88; font-family:'Orbitron',sans-serif; }
+.aim-apply-btn-mini {
+  background:#00ff8822; border:1px solid #00ff8844; border-radius:8px;
+  color:#00ff88; font-size:10px; font-weight:700; padding:8px 12px;
+  cursor:pointer; letter-spacing:1px; white-space:nowrap;
+}
+.ch-ring {
+  position:absolute; top:50%; left:50%; width:32px; height:32px;
+  border:1px solid #00ff8844; border-radius:50%; transform:translate(-50%,-50%);
+}
+
+/* ── AIM LOCK ── */
+.aimlock-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-bottom:12px; }
+.aimlock-btn {
+  background:#0f0f0f; border:1px solid #1e1e1e; border-radius:10px;
+  padding:10px 4px; display:flex; flex-direction:column; align-items:center;
+  gap:3px; cursor:pointer; transition:all .2s;
+}
+.aimlock-btn.active { border-color:#ff4d6a; background:#ff4d6a11; }
+.al-ver { font-size:13px; font-weight:900; color:#ff4d6a; font-family:'Orbitron',sans-serif; }
+.aimlock-btn:not(.active) .al-ver { color:#555; }
+.al-name { font-size:11px; font-weight:700; color:#ddd; }
+.al-desc { font-size:9px; color:#555; }
+.aimlock-detail {
+  background:#0a0a0a; border:1px solid #ff4d6a22; border-radius:10px;
+  padding:12px; display:flex; flex-direction:column; gap:8px;
+}
+.ald-row { display:flex; justify-content:space-between; font-size:11px; color:#666; }
+.ald-val { color:#ff4d6a; font-weight:700; font-family:'Share Tech Mono',monospace; }
+
+/* ── SMOOTH AIM ── */
+.smooth-card { background:#0a0a0a; border:1px solid #151515; border-radius:12px; padding:14px; }
+.smooth-preview-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.smooth-bar-wrap { flex:1; }
+.smooth-bar-track { height:6px; background:#1a1a1a; border-radius:3px; overflow:hidden; }
+.smooth-bar-fill  { height:100%; background:linear-gradient(90deg,#ff4d6a,#00ff88); border-radius:3px; transition:width .2s; }
+.smooth-labels { display:flex; justify-content:space-between; font-size:9px; color:#444; margin-top:3px; }
+.smooth-pct { font-size:16px; font-weight:700; color:#00ff88; font-family:'Share Tech Mono',monospace; min-width:40px; text-align:right; }
+.smooth-slider { margin:6px 0 10px; background:linear-gradient(to right,#00ff88 60%,#1e1e1e 60%); }
+.smooth-presets { display:flex; gap:6px; }
+.smooth-pre-btn {
+  flex:1; padding:7px; border-radius:7px; border:1px solid #1e1e1e;
+  background:#111; color:#666; font-size:10px; cursor:pointer; transition:all .2s;
+}
+.smooth-pre-btn.active { border-color:#00ff88; color:#00ff88; background:#00ff8811; }
+
+/* ── AIM ASSIST ── */
+.assist-card { background:#0a0a0a; border:1px solid #151515; border-radius:12px; padding:14px; }
+.assist-toggle-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.assist-title { font-size:13px; font-weight:600; color:#ddd; }
+.assist-sub { font-size:10px; color:#555; margin-top:2px; }
+.assist-options { display:flex; flex-direction:column; gap:12px; border-top:1px solid #1a1a1a; padding-top:12px; }
+.assist-opt-row { display:flex; align-items:center; justify-content:space-between; font-size:11px; color:#777; }
+.assist-lvl-btns { display:flex; gap:5px; }
+.assist-lvl, .assist-target, .assist-when {
+  padding:5px 10px; border-radius:6px; border:1px solid #1e1e1e;
+  background:#111; color:#555; font-size:10px; cursor:pointer; transition:all .2s;
+}
+.assist-lvl.active   { border-color:#4df0ff; color:#4df0ff; background:#4df0ff11; }
+.assist-target.active { border-color:#ffe94d; color:#ffe94d; background:#ffe94d11; }
+.assist-when.active  { border-color:#00ff88; color:#00ff88; background:#00ff8811; }
+
+/* ── AIM HOLD ── */
+.hold-card { background:#0a0a0a; border:1px solid #151515; border-radius:12px; padding:14px; }
+.hold-toggle-row { display:flex; align-items:center; justify-content:space-between; }
+.hold-title { font-size:13px; font-weight:600; color:#ddd; }
+.hold-sub { font-size:10px; color:#555; margin-top:2px; }
+.hold-mode-row { margin-top:10px; }
+
+/* ── HEAD LOCK ── */
+.headlock-card { background:#0a0a0a; border:1px solid #ff4d6a22; border-radius:12px; padding:14px; }
+.headlock-visual { display:flex; gap:14px; align-items:flex-start; }
+.headlock-target {
+  width:64px; height:64px; flex-shrink:0;
+  background:#111; border-radius:8px; border:1px solid #1a1a1a;
+  position:relative; display:flex; align-items:center; justify-content:center;
+}
+.ht-head {
+  width:18px; height:18px; border-radius:50%; background:#333;
+  border:1px solid #555; position:absolute; top:10px; left:50%; transform:translateX(-50%);
+}
+.ht-cross { position:absolute; background:#ff4d6a44; }
+.ht-cross-h { width:100%; height:1px; top:50%; }
+.ht-cross-v { width:1px; height:100%; left:50%; }
+.ht-ring {
+  position:absolute; top:6px; left:50%; transform:translateX(-50%);
+  width:24px; height:24px; border-radius:50%;
+  border:2px solid #333; transition:border-color .3s;
+}
+@keyframes ht-pulse {
+  0%,100% { transform:translateX(-50%) scale(1); opacity:1; }
+  50%      { transform:translateX(-50%) scale(1.2); opacity:.6; }
+}
+.headlock-right { flex:1; }
+.headlock-toggle-row { display:flex; align-items:center; justify-content:space-between; }
+.headlock-lvl-row { display:flex; gap:5px; margin-top:6px; }
+.hl-lvl-btn {
+  flex:1; padding:6px 4px; border-radius:6px; border:1px solid #1e1e1e;
+  background:#111; color:#555; font-size:10px; cursor:pointer; transition:all .2s;
+}
+.hl-lvl-btn.active { border-color:#ff4d6a; color:#ff4d6a; background:#ff4d6a11; }
+.headlock-stats { margin-top:12px; border-top:1px solid #1a1a1a; padding-top:10px; display:flex; flex-direction:column; gap:7px; }
+.hs-item { display:flex; justify-content:space-between; font-size:11px; color:#666; }
+.hs-val { color:#ff4d6a; font-weight:700; font-family:'Share Tech Mono',monospace; }
+
+/* ── APPLY FULL BTN ── */
+.aim-apply-btn-full {
+  width:100%; padding:15px; margin:20px 0 28px;
+  background:linear-gradient(135deg,#ff4d6a,#ff8c42);
+  border:none; border-radius:12px; color:#fff; font-size:13px; font-weight:700;
+  letter-spacing:1px; cursor:pointer; display:flex; align-items:center;
+  justify-content:center; gap:8px; box-shadow:0 4px 20px #ff4d6a33;
+}
