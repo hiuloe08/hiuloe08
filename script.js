@@ -1,0 +1,423 @@
+// ============================================================
+//   SPERNEW OPTIMIZE — script.js
+// ============================================================
+
+// Prevent context menu / copy
+(() => {
+  const prevent = e => e.preventDefault();
+  ['contextmenu','selectstart','dragstart','copy','cut'].forEach(ev =>
+    document.addEventListener(ev, prevent, { passive: false })
+  );
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && ['a','c','x'].includes(e.key.toLowerCase()))
+      e.preventDefault();
+  }, { passive: false });
+})();
+
+// ============ SPLASH ============
+const splashMessages = [
+  'INITIALIZING SYSTEM...',
+  'LOADING AI ENGINE...',
+  'CALIBRATING SENSORS...',
+  'SCANNING DEVICE...',
+  'OPTIMIZING MEMORY...',
+  'READY.',
+];
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Particles
+  const pc = document.getElementById('splash-particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      bottom: ${Math.random()*30}%;
+      animation-duration: ${2 + Math.random()*3}s;
+      animation-delay: ${Math.random()*3}s;
+      width: ${1 + Math.random()*2}px;
+      height: ${1 + Math.random()*2}px;
+    `;
+    pc.appendChild(p);
+  }
+
+  // Loader
+  const fill = document.getElementById('splash-loader-fill');
+  const text = document.getElementById('splash-loader-text');
+  let pct = 0;
+  let msgIdx = 0;
+  const interval = setInterval(() => {
+    pct += Math.random() * 18 + 5;
+    if (pct > 100) pct = 100;
+    fill.style.width = pct + '%';
+    const mIdx = Math.floor((pct / 100) * (splashMessages.length - 1));
+    if (mIdx !== msgIdx) {
+      msgIdx = mIdx;
+      text.textContent = splashMessages[Math.min(msgIdx, splashMessages.length - 1)];
+    }
+    if (pct >= 100) {
+      clearInterval(interval);
+      text.textContent = 'READY.';
+      setTimeout(hideSplash, 600);
+    }
+  }, 180);
+});
+
+function hideSplash() {
+  const splash = document.getElementById('splash-screen');
+  const app = document.getElementById('app');
+  splash.style.transition = 'opacity .6s ease';
+  splash.style.opacity = '0';
+  setTimeout(() => {
+    splash.style.display = 'none';
+    app.style.display = 'flex';
+    initApp();
+  }, 600);
+}
+
+// ============ APP INIT ============
+function initApp() {
+  buildFeatures();
+  startStats();
+  startRealtimeGraphs();
+  animateScoreRing(78);
+  document.getElementById('perf-score').textContent = '78';
+  document.getElementById('perf-grade').textContent = 'GOOD — Tốt';
+  checkSavedKey();
+}
+
+// ============ PAGE NAV ============
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  document.querySelectorAll(`[data-page="${id}"]`).forEach(b => b.classList.add('active'));
+}
+
+// ============ FEATURES ============
+const freeFeatures = [
+  { icon: '⚡', name: 'FPS Stabilizer', desc: 'Ổn định khung hình / Frame stabilization', id: 'fps-stab' },
+  { icon: '🧹', name: 'RAM Cleaner', desc: 'Dọn RAM nhanh / Quick memory clean', id: 'ram-clean' },
+  { icon: '🌡️', name: 'Thermal Monitor', desc: 'Theo dõi nhiệt độ / Temperature tracking', id: 'thermal' },
+  { icon: '📶', name: 'Network Monitor', desc: 'Theo dõi mạng / Network tracking', id: 'net-mon' },
+  { icon: '🔋', name: 'Battery Saver', desc: 'Tiết kiệm pin / Battery optimization', id: 'bat-save' },
+];
+const vipFeatures = [
+  { icon: '🎯', name: 'AI Aim Engine', desc: 'Tối ưu điều khiển AI / AI control optimizer', id: 'aim-eng' },
+  { icon: '🚀', name: 'Turbo Frame', desc: 'Tăng FPS tối đa / Maximum FPS boost', id: 'turbo' },
+  { icon: '🛡️', name: 'Thermal AI Guard', desc: 'Kiểm soát nhiệt AI / AI thermal control', id: 'therm-ai' },
+  { icon: '🌐', name: 'Net Accelerator', desc: 'Giảm ping / Ping reducer', id: 'net-acc' },
+  { icon: '🔊', name: 'Sound Enhancer', desc: 'Tăng âm thanh định hướng / Directional audio', id: 'sound-en' },
+  { icon: '📊', name: 'Deep Analytics', desc: 'Phân tích chuyên sâu / Deep analytics', id: 'analytics' },
+];
+
+function buildFeatures() {
+  buildFeatList('feature-list-free', freeFeatures, false);
+  buildFeatList('feature-list-vip', vipFeatures, true);
+}
+
+function buildFeatList(containerId, features, isVip) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  features.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'feat-item';
+    item.innerHTML = `
+      <div class="feat-icon">${f.icon}</div>
+      <div class="feat-info">
+        <div class="feat-name">${f.name}</div>
+        <div class="feat-desc">${f.desc}</div>
+      </div>
+      <label class="toggle feat-toggle">
+        <input type="checkbox" id="feat-${f.id}" ${isVip ? '' : 'onchange="onFeatureToggle(this, \'' + f.name + '\')"'}>
+        <span class="toggle-track"></span>
+      </label>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function onFeatureToggle(el, name) {
+  showToast(el.checked ? `${name} enabled` : `${name} disabled`);
+}
+
+// ============ STATS SIMULATION ============
+let statsInterval = null;
+const statsHistory = { fps: [], cpu: [], ram: [], temp: [] };
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+let fpsTarget = 60, cpuTarget = 35, ramTarget = 55, tempTarget = 42;
+
+function startStats() {
+  updateStats();
+  statsInterval = setInterval(updateStats, 1200);
+}
+
+function updateStats() {
+  fpsTarget = lerp(fpsTarget, rand(45, 90), .3);
+  cpuTarget = lerp(cpuTarget, rand(20, 75), .3);
+  ramTarget = lerp(ramTarget, rand(40, 80), .3);
+  tempTarget = lerp(tempTarget, rand(35, 65), .3);
+
+  const fps = Math.round(fpsTarget);
+  const cpu = Math.round(cpuTarget);
+  const ram = Math.round(ramTarget);
+  const temp = Math.round(tempTarget);
+
+  // Dashboard stats
+  setStatCard('fps', fps, '', fps >= 60 ? 'SMOOTH' : fps >= 45 ? 'NORMAL' : 'LOW', (fps / 120) * 100);
+  setStatCard('cpu', cpu, '%', cpu < 50 ? 'NORMAL' : cpu < 70 ? 'HIGH' : 'CRITICAL', cpu);
+  setStatCard('ram', ram, '%', ram < 60 ? 'OK' : ram < 75 ? 'HIGH' : 'FULL', ram);
+  setStatCard('temp', temp, '°', temp < 45 ? 'COOL' : temp < 55 ? 'WARM' : 'HOT', (temp / 80) * 100);
+
+  // Score
+  const score = Math.round(((fps / 90) * 30 + ((100 - cpu) / 100) * 25 + ((100 - ram) / 100) * 25 + ((80 - temp) / 80) * 20));
+  const clampedScore = Math.min(99, Math.max(10, score));
+  document.getElementById('perf-score').textContent = clampedScore;
+  document.getElementById('perf-grade').textContent = clampedScore >= 80 ? 'EXCELLENT — Xuất sắc'
+    : clampedScore >= 65 ? 'GOOD — Tốt'
+    : clampedScore >= 50 ? 'NORMAL — Bình thường'
+    : 'LOW — Cần tối ưu';
+  animateScoreRing(clampedScore);
+
+  // Realtime page
+  document.getElementById('rt-fps').textContent = fps;
+  document.getElementById('rt-cpu').textContent = cpu + '%';
+  document.getElementById('rt-ram').textContent = ram + '%';
+  document.getElementById('rt-temp').textContent = temp + '°';
+
+  // History
+  ['fps','cpu','ram','temp'].forEach(k => {
+    const v = k === 'fps' ? fps : k === 'cpu' ? cpu : k === 'ram' ? ram : temp;
+    statsHistory[k].push(v);
+    if (statsHistory[k].length > 20) statsHistory[k].shift();
+    updateMinMaxAvg(k, statsHistory[k]);
+  });
+
+  // Network
+  document.getElementById('net-down').textContent = (Math.random() * 5 + .5).toFixed(1) + ' MB/s';
+  document.getElementById('net-up').textContent = (Math.random() * 1 + .1).toFixed(1) + ' MB/s';
+  document.getElementById('net-ping').textContent = rand(8, 45) + ' ms';
+}
+
+function setStatCard(key, val, suffix, statusText, pct) {
+  const elVal = document.getElementById('val-' + key);
+  const elBar = document.getElementById('bar-' + key);
+  const elStatus = document.getElementById('status-' + key);
+  if (elVal) elVal.innerHTML = val + (suffix ? `<span>${suffix}</span>` : '');
+  if (elBar) elBar.style.width = Math.min(100, pct) + '%';
+  if (elStatus) elStatus.textContent = statusText;
+}
+
+function updateMinMaxAvg(key, arr) {
+  if (!arr.length) return;
+  const min = Math.min(...arr);
+  const max = Math.max(...arr);
+  const avg = Math.round(arr.reduce((a,b) => a+b, 0) / arr.length);
+  const suffix = key === 'fps' ? '' : key === 'temp' ? '°' : '%';
+  const el = (id) => document.getElementById(id);
+  if (el(`rt-${key}-min`)) el(`rt-${key}-min`).textContent = min + suffix;
+  if (el(`rt-${key}-max`)) el(`rt-${key}-max`).textContent = max + suffix;
+  if (el(`rt-${key}-avg`)) el(`rt-${key}-avg`).textContent = avg + suffix;
+}
+
+// ============ GRAPH BARS ============
+const graphColors = {
+  fps: '#00ff88', cpu: '#ffe94d', ram: '#4df0ff', temp: '#ff4d6a'
+};
+
+function startRealtimeGraphs() {
+  ['fps','cpu','ram','temp'].forEach(k => {
+    const container = document.getElementById('graph-' + k);
+    if (!container) return;
+    for (let i = 0; i < 20; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'graph-bar';
+      bar.style.background = graphColors[k] + '55';
+      bar.style.height = '2px';
+      container.appendChild(bar);
+    }
+  });
+  setInterval(updateGraphs, 1200);
+}
+
+function updateGraphs() {
+  ['fps','cpu','ram','temp'].forEach(k => {
+    const container = document.getElementById('graph-' + k);
+    if (!container) return;
+    const bars = container.querySelectorAll('.graph-bar');
+    const history = statsHistory[k];
+    if (!history.length) return;
+    const maxVal = k === 'fps' ? 120 : k === 'temp' ? 80 : 100;
+    bars.forEach((bar, i) => {
+      const val = history[i] || 0;
+      const pct = (val / maxVal) * 100;
+      bar.style.height = Math.max(2, pct * 0.4) + 'px';
+      const isLast = i === history.length - 1;
+      bar.style.background = isLast ? graphColors[k] : graphColors[k] + '44';
+      bar.style.boxShadow = isLast ? `0 0 4px ${graphColors[k]}` : 'none';
+    });
+  });
+}
+
+// ============ SCORE RING ============
+function animateScoreRing(score) {
+  const circle = document.getElementById('score-ring-circle');
+  if (!circle) return;
+  const circumference = 2 * Math.PI * 32;
+  const offset = circumference - (score / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+  circle.style.stroke = score >= 80 ? '#00ff88' : score >= 60 ? '#ffe94d' : '#ff4d6a';
+}
+
+// ============ BOOST ============
+function runBoost() {
+  const overlay = document.getElementById('boost-overlay');
+  const text = document.getElementById('boost-overlay-text');
+  const pct = document.getElementById('boost-overlay-pct');
+  overlay.style.display = 'flex';
+  let p = 0;
+  const msgs = ['SCANNING MEMORY...','CLEARING CACHE...','OPTIMIZING FPS...','APPLYING TWEAKS...','DONE!'];
+  const iv = setInterval(() => {
+    p += rand(8, 18);
+    if (p > 100) p = 100;
+    pct.textContent = p + '%';
+    text.textContent = msgs[Math.floor((p / 100) * (msgs.length - 1))];
+    if (p >= 100) {
+      clearInterval(iv);
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        showToast('✅ Boost complete! System optimized.');
+      }, 500);
+    }
+  }, 200);
+}
+
+// ============ QUICK ACTIONS ============
+const qaMessages = {
+  clear: '🧹 RAM cleared — 512MB freed',
+  cool: '❄️ Cooling mode activated',
+  boost: '⚡ FPS boost applied',
+  network: '🌐 Network optimized — ping reduced',
+};
+function quickAction(type) {
+  showToast(qaMessages[type] || 'Done!');
+}
+
+// ============ TOAST ============
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ============ SETTINGS ============
+function applySettings() {
+  // Dark mode always on for now
+  showToast('Settings saved / Đã lưu cài đặt');
+}
+
+// ============ KEY ACTIVATION ============
+const API_URL = 'http://localhost:5000'; // ← Đổi thành URL server của bạn khi deploy
+
+function showKeyModal() {
+  document.getElementById('key-modal').style.display = 'flex';
+  document.getElementById('key-input').value = '';
+  document.getElementById('key-msg').textContent = '';
+  setTimeout(() => document.getElementById('key-input').focus(), 100);
+}
+
+function hideKeyModal() {
+  document.getElementById('key-modal').style.display = 'none';
+}
+
+async function activateKey() {
+  const key = document.getElementById('key-input').value.trim();
+  const msgEl = document.getElementById('key-msg');
+  const btn = document.getElementById('activate-btn');
+
+  if (!key) { msgEl.style.color = '#ff4d6a'; msgEl.textContent = '⚠️ Vui lòng nhập key!'; return; }
+
+  btn.textContent = 'ĐANG KIỂM TRA...';
+  btn.disabled = true;
+  msgEl.style.color = '#aaa';
+  msgEl.textContent = 'Đang xác thực...';
+
+  try {
+    const res = await fetch(API_URL + '/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key })
+    });
+    const data = await res.json();
+
+    if (data.valid) {
+      localStorage.setItem('vip_key', key);
+      localStorage.setItem('vip_expires', data.expires_at);
+      msgEl.style.color = '#00ff88';
+      msgEl.textContent = data.msg;
+      setTimeout(() => { hideKeyModal(); unlockVIP(data.expires_at); }, 900);
+    } else {
+      msgEl.style.color = '#ff4d6a';
+      msgEl.textContent = data.msg;
+    }
+  } catch (e) {
+    msgEl.style.color = '#ff4d6a';
+    msgEl.textContent = '❌ Không kết nối được server';
+  }
+
+  btn.textContent = 'KÍCH HOẠT';
+  btn.disabled = false;
+}
+
+function unlockVIP(expiresAt) {
+  // Mở khoá tất cả VIP toggles
+  const vipList = document.getElementById('feature-list-vip');
+  if (vipList) {
+    vipList.classList.remove('locked');
+    vipList.querySelectorAll('input[type=checkbox]').forEach(el => {
+      el.disabled = false;
+      el.onchange = function () {
+        onFeatureToggle(this, this.closest('.feat-item').querySelector('.feat-name').textContent);
+      };
+    });
+  }
+
+  // Đổi nút UPGRADE → đã kích hoạt
+  document.querySelectorAll('.upgrade-mini-btn').forEach(btn => {
+    btn.textContent = '👑 VIP';
+    btn.style.background = 'linear-gradient(135deg,#ffe94d,#ff9800)';
+    btn.style.color = '#000';
+    btn.onclick = null;
+  });
+
+  // Banner VIP ở đầu app
+  if (!document.getElementById('vip-banner')) {
+    const banner = document.createElement('div');
+    banner.id = 'vip-banner';
+    banner.style.cssText = 'background:linear-gradient(90deg,#00ff8811,#00ff8822);border-bottom:1px solid #00ff8833;color:#00ff88;padding:7px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:1px;';
+    banner.innerHTML = `👑 VIP ACTIVE &nbsp;|&nbsp; Hết hạn: ${expiresAt}`;
+    document.getElementById('app').prepend(banner);
+  }
+
+  showToast('👑 VIP kích hoạt thành công! Hết hạn ' + expiresAt);
+}
+
+function checkSavedKey() {
+  const key = localStorage.getItem('vip_key');
+  const exp = localStorage.getItem('vip_expires');
+  if (key && exp && new Date(exp) > new Date()) {
+    unlockVIP(exp);
+  } else {
+    localStorage.removeItem('vip_key');
+    localStorage.removeItem('vip_expires');
+  }
+}
