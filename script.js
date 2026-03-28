@@ -325,7 +325,234 @@ function applySettings() {
   showToast('Settings saved / Đã lưu cài đặt');
 }
 
-// ============ KEY ACTIVATION — SUPABASE ============
+
+// ============================================================
+//   AIM LAB — Hỗ trợ kéo tâm Free Fire
+// ============================================================
+
+// ── 1. AIM LOCK v1–v4 ────────────────────────────────────────
+const aimlockData = {
+  v1: { radius:'15px', speed:'Rất nhẹ',  priority:'Ngực',       label:'AimLock v1 — Nhẹ'  },
+  v2: { radius:'25px', speed:'Nhẹ',      priority:'Đầu + Ngực', label:'AimLock v2 — Vừa'  },
+  v3: { radius:'35px', speed:'Medium',   priority:'Đầu + Ngực', label:'AimLock v3 — Mạnh' },
+  v4: { radius:'55px', speed:'Nhanh',    priority:'Đầu (MAX)',  label:'AimLock v4 — MAX'  },
+};
+
+function setAimLock(btn, ver) {
+  document.querySelectorAll('.aimlock-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = aimlockData[ver];
+  document.getElementById('al-radius').textContent   = d.radius;
+  document.getElementById('al-speed').textContent    = d.speed;
+  document.getElementById('al-priority').textContent = d.priority;
+  document.getElementById('aim-mode-label').textContent = d.label;
+  updateAimScore();
+  showToast('🔒 ' + d.label + ' đã chọn');
+}
+
+// ── 2. NHẸ TÂM (Smooth) ──────────────────────────────────────
+function updateSmooth(val) {
+  document.getElementById('smooth-fill').style.width = val + '%';
+  document.getElementById('smooth-pct').textContent  = val + '%';
+  updateAimScore();
+}
+function setSmooth(btn, val) {
+  document.querySelectorAll('.smooth-pre-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const slider = document.querySelector('.smooth-slider');
+  if (slider) { slider.value = val; updateSmooth(val); }
+  showToast('🪶 Smooth aim: ' + btn.textContent);
+}
+
+// ── 3. AIM ASSIST ─────────────────────────────────────────────
+function toggleAssist(el) {
+  showToast(el.checked ? '🤖 Aim Assist đã bật' : '🤖 Aim Assist đã tắt');
+  updateAimScore();
+}
+function setAssistLevel(btn, lvl) {
+  document.querySelectorAll('.assist-lvl').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showToast('Aim Assist: ' + btn.textContent);
+}
+function setAssistTarget(btn, t) {
+  document.querySelectorAll('.assist-target').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showToast('Target: ' + btn.textContent);
+}
+function setAssistWhen(btn, w) {
+  document.querySelectorAll('.assist-when').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showToast('Kích hoạt: ' + btn.textContent);
+}
+
+// ── 4. AIM HOLD ───────────────────────────────────────────────
+function toggleHold(el) {
+  document.getElementById('hold-options').style.display = el.checked ? 'block' : 'none';
+  showToast(el.checked ? '🖐️ Aim Hold bật' : '🖐️ Aim Hold tắt');
+}
+function setHoldMode(btn, mode) {
+  document.querySelectorAll('.gyro-mode-btn').forEach(b => {
+    if (b.closest('#hold-options')) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  showToast('Hold mode: ' + btn.textContent);
+}
+
+// ── 5. SENSITIVITY ────────────────────────────────────────────
+const sensPresets = {
+  balanced: { general:100, ads:80, scope2:65, scope4:50, scope8:35, label:'Chế độ: Cân bằng' },
+  sniper:   { general:55,  ads:42, scope2:32, scope4:26, scope8:18, label:'Chế độ: Sniper'   },
+  rush:     { general:155, ads:120,scope2:100,scope4:80, scope8:55, label:'Chế độ: Rush'      },
+  pro:      { general:88,  ads:70, scope2:58, scope4:44, scope8:30, label:'Chế độ: Pro Aim'   },
+};
+
+function applySensPreset(btn, preset) {
+  document.querySelectorAll('.sens-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const p = sensPresets[preset];
+  ['general','ads','scope2','scope4','scope8'].forEach(k => {
+    const sl = document.getElementById('sr-' + k);
+    const vl = document.getElementById('sv-' + k);
+    if (sl) sl.value = p[k];
+    if (vl) vl.textContent = p[k];
+  });
+  document.getElementById('aim-mode-label').textContent = p.label;
+  showToast('✅ Preset: ' + btn.querySelector('.sp-name').textContent);
+}
+
+function updateSens(key, val) {
+  const el = document.getElementById('sv-' + key);
+  if (el) el.textContent = val;
+}
+
+// ── 6. HEAD LOCK / BÁM ĐẦU ───────────────────────────────────
+const headLockData = [
+  { zone:'±10px', speed:'Rất nhẹ', acc:'70%' },
+  { zone:'±18px', speed:'Nhẹ',     acc:'78%' },
+  { zone:'±26px', speed:'Trung',   acc:'85%' },
+  { zone:'±36px', speed:'Nhanh',   acc:'91%' },
+  { zone:'±50px', speed:'Tối đa',  acc:'97%' },
+];
+
+function toggleHeadLock(el) {
+  const ring = document.getElementById('ht-ring');
+  if (el.checked) {
+    ring.style.animation = 'ht-pulse 1s infinite';
+    ring.style.borderColor = '#ff4d6a';
+    showToast('💀 Head Lock đã bật');
+  } else {
+    ring.style.animation = 'none';
+    ring.style.borderColor = '#333';
+    showToast('💀 Head Lock đã tắt');
+  }
+  updateAimScore();
+}
+
+function setHeadLockLevel(btn, lv) {
+  document.querySelectorAll('.hl-lvl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = headLockData[lv - 1];
+  document.getElementById('hl-zone').textContent  = d.zone;
+  document.getElementById('hl-speed').textContent = d.speed;
+  document.getElementById('hl-acc').textContent   = d.acc;
+  showToast('💀 Head Lock Lv' + lv + ' — ' + d.acc);
+  updateAimScore();
+}
+
+// ── 7. GYROSCOPE ─────────────────────────────────────────────
+function toggleGyro(el) {
+  document.getElementById('gyro-options').style.display = el.checked ? 'block' : 'none';
+  showToast(el.checked ? '🔄 Gyroscope bật' : '🔄 Gyroscope tắt');
+}
+function setGyroMode(btn, mode) {
+  const parent = btn.closest('.gyro-mode-btns');
+  parent.querySelectorAll('.gyro-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const lbl = { always:'Luôn bật', ads:'Khi ADS', scope:'Khi scope' };
+  showToast('Gyro: ' + lbl[mode]);
+}
+
+// ── 8. TOUCH LATENCY ─────────────────────────────────────────
+let currentLatency = 12;
+function optimizeTouchLatency() {
+  const arc = document.getElementById('tl-gauge-arc');
+  const valEl = document.getElementById('tl-gauge-val');
+  const txt   = document.getElementById('tl-status-text');
+  let lat = currentLatency;
+  showToast('⚡ Đang tối ưu touch latency...');
+  const iv = setInterval(() => {
+    lat = Math.max(3, lat - Math.random() * 3);
+    const offset = 110 - ((lat / 50) * 110);
+    if (arc)   arc.style.strokeDashoffset = offset;
+    if (valEl) valEl.textContent = Math.round(lat) + 'ms';
+    if (lat <= 4) {
+      clearInterval(iv);
+      currentLatency = Math.round(lat);
+      arc.style.stroke = '#00ff88';
+      txt.textContent  = 'SIÊU NHANH — Xuất sắc';
+      showToast('✅ Latency tối ưu: ' + currentLatency + 'ms');
+    }
+  }, 180);
+}
+
+// ── 9. LAYOUT ─────────────────────────────────────────────────
+const layoutTips = {
+  '2': { t:'💡 Mẹo 2 ngón:', d:'Cả 2 ngón cái điều khiển tất cả · Đơn giản · Phù hợp người mới bắt đầu' },
+  '3': { t:'💡 Mẹo 3 ngón:', d:'Ngón cái trái: di chuyển · Ngón cái phải: nhìn · Ngón trỏ: bắn — Cân bằng tốt' },
+  '4': { t:'💡 Mẹo 4 ngón:', d:'Cái trái: di chuyển · Cái phải: bắn · Trỏ trái: nhảy/crouch · Trỏ phải: scope — Kéo tâm mượt hơn 40%' },
+};
+function selectLayout(btn, f) {
+  document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const t = layoutTips[f];
+  const el = document.getElementById('layout-tips');
+  if (el && t) el.innerHTML = `<div class="tip-title">${t.t}</div><div class="tip-text">${t.d}</div>`;
+  showToast('✋ Layout ' + f + ' ngón');
+}
+
+// ── AIM SCORE ─────────────────────────────────────────────────
+function updateAimScore() {
+  const base = 60;
+  const al  = document.querySelector('.aimlock-btn.active');
+  const hlT = document.getElementById('headlock-toggle');
+  const asT = document.getElementById('assist-toggle');
+  const hoT = document.getElementById('hold-toggle');
+  let score = base;
+  if (al) { const v = al.id; score += v==='v4'?18:v==='v3'?12:v==='v2'?7:3; }
+  if (hlT && hlT.checked) score += 10;
+  if (asT && asT.checked) score += 8;
+  if (hoT && hoT.checked) score += 4;
+  score = Math.min(99, score);
+  const el = document.getElementById('aim-score-val');
+  if (el) el.textContent = score;
+}
+
+// ── APPLY ALL ─────────────────────────────────────────────────
+function applyAimSettings() {
+  const overlay = document.getElementById('boost-overlay');
+  const text    = document.getElementById('boost-overlay-text');
+  const pct     = document.getElementById('boost-overlay-pct');
+  overlay.style.display = 'flex';
+  let p = 0;
+  const msgs = ['LOADING AIM CONFIG...','CALIBRATING AIM LOCK...','APPLYING HEAD TRACKING...','TUNING SENSITIVITY...','AIM OPTIMIZED!'];
+  const iv = setInterval(() => {
+    p += rand(10, 20);
+    if (p > 100) p = 100;
+    pct.textContent  = p + '%';
+    text.textContent = msgs[Math.min(Math.floor((p/100)*(msgs.length-1)), msgs.length-1)];
+    if (p >= 100) {
+      clearInterval(iv);
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        const badge = document.getElementById('aim-status-badge');
+        if (badge) { badge.textContent = '● OPTIMIZED'; badge.style.color = '#00ff88'; }
+        showToast('🎯 Tất cả cài đặt AIM đã áp dụng! Chúc rank cao!');
+        updateAimScore();
+      }, 400);
+    }
+  }, 200);
+}
+
 // ⚠️ Điền 2 dòng này sau khi tạo project Supabase
 const SUPABASE_URL = 'https://pjhdnvbssbcmbhepevcn.supabase.co';  // ← dán URL project vào đây
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaGRudmJzc2JjbWJoZXBldmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTk4MzMsImV4cCI6MjA5MDIzNTgzM30.00MnFaNSNOJEHJO_OPbsMu45EftknC9o4_ukx5UHaE4';              // ← dán anon key vào đây
