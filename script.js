@@ -557,6 +557,29 @@ function applyAimSettings() {
 const SUPABASE_URL = 'https://pjhdnvbssbcmbhepevcn.supabase.co';  // ← dán URL project vào đây
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaGRudmJzc2JjbWJoZXBldmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTk4MzMsImV4cCI6MjA5MDIzNTgzM30.00MnFaNSNOJEHJO_OPbsMu45EftknC9o4_ukx5UHaE4';              // ← dán anon key vào đây
 
+// ============ DEVICE ID ============
+function getDeviceId() {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    // Tạo device ID duy nhất dựa trên thông tin thiết bị + random
+    const ua = navigator.userAgent;
+    const screen = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
+    const lang = navigator.language;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const rand = Math.random().toString(36).slice(2, 10);
+    const raw = `${ua}|${screen}|${lang}|${tz}|${rand}`;
+    // Simple hash
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+      hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+      hash |= 0;
+    }
+    id = 'dev_' + Math.abs(hash).toString(16) + '_' + rand;
+    localStorage.setItem('device_id', id);
+  }
+  return id;
+}
+
 function showKeyModal() {
   document.getElementById('key-modal').style.display = 'flex';
   document.getElementById('key-input').value = '';
@@ -564,7 +587,14 @@ function showKeyModal() {
   setTimeout(() => document.getElementById('key-input').focus(), 100);
 }
 
+// Không cho phép đóng modal nếu chưa kích hoạt
 function hideKeyModal() {
+  const isVip = localStorage.getItem('vip_key') && localStorage.getItem('vip_expires')
+    && new Date(localStorage.getItem('vip_expires')) > new Date();
+  if (!isVip) {
+    showToast('⚠️ Vui lòng nhập key để tiếp tục!');
+    return;
+  }
   document.getElementById('key-modal').style.display = 'none';
 }
 
@@ -572,6 +602,7 @@ async function activateKey() {
   const key = document.getElementById('key-input').value.trim();
   const msgEl = document.getElementById('key-msg');
   const btn = document.getElementById('activate-btn');
+  const deviceId = getDeviceId();
 
   if (!key) { msgEl.style.color = '#ff4d6a'; msgEl.textContent = '⚠️ Vui lòng nhập key!'; return; }
 
@@ -581,8 +612,9 @@ async function activateKey() {
   msgEl.textContent = 'Đang xác thực...';
 
   try {
+    // Lấy thông tin key bao gồm device_id đã bind
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/keys?key=eq.${encodeURIComponent(key)}&select=expires_at,is_active`,
+      `${SUPABASE_URL}/rest/v1/keys?key=eq.${encodeURIComponent(key)}&select=expires_at,is_active,device_id`,
       { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
     );
     const data = await res.json();
@@ -590,18 +622,41 @@ async function activateKey() {
     if (!data.length) {
       msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key không tồn tại';
     } else {
-      const { expires_at, is_active } = data[0];
+      const { expires_at, is_active, device_id: boundDevice } = data[0];
+
       if (!is_active) {
         msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key đã bị thu hồi';
       } else if (new Date(expires_at) < new Date()) {
         msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key đã hết hạn';
+      } else if (boundDevice && boundDevice !== deviceId) {
+        // Key đã được bind vào thiết bị khác
+        msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key này đã được dùng trên thiết bị khác';
       } else {
+        // Nếu chưa bind thì bind device_id vào key này
+        if (!boundDevice) {
+          await fetch(
+            `${SUPABASE_URL}/rest/v1/keys?key=eq.${encodeURIComponent(key)}`,
+            {
+              method: 'PATCH',
+              headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=minimal'
+              },
+              body: JSON.stringify({ device_id: deviceId })
+            }
+          );
+        }
         const exp = expires_at.slice(0, 10);
         localStorage.setItem('vip_key', key);
         localStorage.setItem('vip_expires', exp);
         msgEl.style.color = '#00ff88';
-        msgEl.textContent = '✅ Kích hoạt VIP thành công!';
-        setTimeout(() => { hideKeyModal(); unlockVIP(exp); }, 900);
+        msgEl.textContent = '✅ Kích hoạt thành công!';
+        setTimeout(() => {
+          document.getElementById('key-modal').style.display = 'none';
+          unlockVIP(exp);
+        }, 900);
       }
     }
   } catch (e) {
@@ -650,9 +705,12 @@ function checkSavedKey() {
   const key = localStorage.getItem('vip_key');
   const exp = localStorage.getItem('vip_expires');
   if (key && exp && new Date(exp) > new Date()) {
+    // Key hợp lệ — unlock ngay không cần hỏi lại
     unlockVIP(exp);
   } else {
+    // Xoá key cũ và bắt nhập key ngay khi vào app
     localStorage.removeItem('vip_key');
     localStorage.removeItem('vip_expires');
+    showKeyModal();
   }
 }
