@@ -325,8 +325,10 @@ function applySettings() {
   showToast('Settings saved / Đã lưu cài đặt');
 }
 
-// ============ KEY ACTIVATION ============
-const API_URL = 'http://localhost:5000'; // ← Đổi thành URL server của bạn khi deploy
+// ============ KEY ACTIVATION — SUPABASE ============
+// ⚠️ Điền 2 dòng này sau khi tạo project Supabase
+const SUPABASE_URL = 'https://pjhdnvbssbcmbhepevcn.supabase.co';  // ← dán URL project vào đây
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaGRudmJzc2JjbWJoZXBldmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTk4MzMsImV4cCI6MjA5MDIzNTgzM30.00MnFaNSNOJEHJO_OPbsMu45EftknC9o4_ukx5UHaE4';              // ← dán anon key vào đây
 
 function showKeyModal() {
   document.getElementById('key-modal').style.display = 'flex';
@@ -352,26 +354,32 @@ async function activateKey() {
   msgEl.textContent = 'Đang xác thực...';
 
   try {
-    const res = await fetch(API_URL + '/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key })
-    });
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/keys?key=eq.${encodeURIComponent(key)}&select=expires_at,is_active`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
     const data = await res.json();
 
-    if (data.valid) {
-      localStorage.setItem('vip_key', key);
-      localStorage.setItem('vip_expires', data.expires_at);
-      msgEl.style.color = '#00ff88';
-      msgEl.textContent = data.msg;
-      setTimeout(() => { hideKeyModal(); unlockVIP(data.expires_at); }, 900);
+    if (!data.length) {
+      msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key không tồn tại';
     } else {
-      msgEl.style.color = '#ff4d6a';
-      msgEl.textContent = data.msg;
+      const { expires_at, is_active } = data[0];
+      if (!is_active) {
+        msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key đã bị thu hồi';
+      } else if (new Date(expires_at) < new Date()) {
+        msgEl.style.color = '#ff4d6a'; msgEl.textContent = '❌ Key đã hết hạn';
+      } else {
+        const exp = expires_at.slice(0, 10);
+        localStorage.setItem('vip_key', key);
+        localStorage.setItem('vip_expires', exp);
+        msgEl.style.color = '#00ff88';
+        msgEl.textContent = '✅ Kích hoạt VIP thành công!';
+        setTimeout(() => { hideKeyModal(); unlockVIP(exp); }, 900);
+      }
     }
   } catch (e) {
     msgEl.style.color = '#ff4d6a';
-    msgEl.textContent = '❌ Không kết nối được server';
+    msgEl.textContent = '❌ Không kết nối được Supabase';
   }
 
   btn.textContent = 'KÍCH HOẠT';
