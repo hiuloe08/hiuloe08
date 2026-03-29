@@ -2435,7 +2435,9 @@ startRealtimeGraphs();
 animateScoreRing(78);
 document.getElementById(‘perf-score’).textContent = ‘78’;
 document.getElementById(‘perf-grade’).textContent = ‘GOOD — Tốt’;
-await checkSavedKey(); // ← await để chờ Supabase trả về trước khi tiếp tục
+// Không await ở đây — check Supabase chạy ngầm, app hiện bình thường
+// Nếu key không hợp lệ thì showKeyModal() sẽ tự bật lên
+checkSavedKey();
 }
 
 // ============ PAGE NAV ============
