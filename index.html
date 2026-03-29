@@ -3084,10 +3084,13 @@ return;
 // Có key → verify lại với Supabase mỗi lần mở app
 try {
 const deviceId = getDeviceId();
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 5000); // timeout 5 giây
 const res = await fetch(
 `${SUPABASE_URL}/rest/v1/keys?key=eq.${encodeURIComponent(key)}&select=expires_at,is_active,device_id`,
-{ headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+{ headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }, signal: controller.signal }
 );
+clearTimeout(timeout);
 const data = await res.json();
 
 ```
