@@ -2042,7 +2042,7 @@ button, .bnav-btn, .qa-btn, .aimlock-btn, .sens-preset-btn, .layout-btn {
             <div class="admin-avatar-inner">
               <!-- Ảnh admin: thay src bên dưới bằng link ảnh thật -->
               <img id="admin-avatar-img"
-                src="https://ui-avatars.com/api/?name=Admin+SperNew&background=001a0e&color=00ff88&size=200&bold=true&font-size=0.38"
+                src="https://sf-static.upanhlaylink.com/img/image_20260326a7034914824f325c64555e14a23cbc29.jpg"
                 alt="Admin"
                 onerror="this.style.display='none';document.getElementById('admin-avatar-fallback').style.display='flex'"
               />
@@ -2076,7 +2076,7 @@ button, .bnav-btn, .qa-btn, .aimlock-btn, .sens-preset-btn, .layout-btn {
         <div class="admin-contacts">
 
           <!-- ZALO -->
-          <a class="admin-contact-card zalo-card" href="https://zalo.me/0000000000" target="_blank" onclick="playSound('click')">
+          <a class="admin-contact-card zalo-card" href="https://zalo.me/0336854208" target="_blank" onclick="playSound('click')">
             <div class="acc-icon-wrap zalo-icon">
               <svg width="26" height="26" viewBox="0 0 50 50" fill="none">
                 <rect width="50" height="50" rx="12" fill="#0068FF"/>
@@ -2095,7 +2095,7 @@ button, .bnav-btn, .qa-btn, .aimlock-btn, .sens-preset-btn, .layout-btn {
           </a>
 
           <!-- FACEBOOK -->
-          <a class="admin-contact-card fb-card" href="https://facebook.com/spernewadmin" target="_blank" onclick="playSound('click')">
+          <a class="admin-contact-card fb-card" href="https://www.facebook.com/share/18RKnTB1Bs/?mibextid=wwXIfr" target="_blank" onclick="playSound('click')">
             <div class="acc-icon-wrap fb-icon">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect width="24" height="24" rx="6" fill="#1877F2"/>
@@ -2114,7 +2114,7 @@ button, .bnav-btn, .qa-btn, .aimlock-btn, .sens-preset-btn, .layout-btn {
           </a>
 
           <!-- TELEGRAM -->
-          <a class="admin-contact-card tg-card" href="https://t.me/spernewadmin" target="_blank" onclick="playSound('click')">
+          <a class="admin-contact-card tg-card" href="https://t.me/spernew" target="_blank" onclick="playSound('click')">
             <div class="acc-icon-wrap tg-icon">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect width="24" height="24" rx="6" fill="#229ED9"/>
@@ -2926,7 +2926,6 @@ function applyAimSettings() {
 }
 
 // ⚠️ Điền 2 dòng này sau khi tạo project Supabase
-project Supabase
 const SUPABASE_URL = ‘https://pjhdnvbssbcmbhepevcn.supabase.co’;  // ← dán URL project vào đây
 const SUPABASE_KEY        = ‘eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaGRudmJzc2JjbWJoZXBldmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTk4MzMsImV4cCI6MjA5MDIzNTgzM30.00MnFaNSNOJEHJO_OPbsMu45EftknC9o4_ukx5UHaE4;       // ← anon key (dùng để đọc)
 const SUPABASE_WRITE_KEY  = ‘eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaGRudmJzc2JjbWJoZXBldmNuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDY1OTgzMywiZXhwIjoyMDkwMjM1ODMzfQ.63NAUMk4y-25eyjy9n96BhK3grB0b_64Ng04wIsSDVM’;      // ← service_role key (dùng để bind device)
@@ -3083,44 +3082,17 @@ function unlockVIP(expiresAt) {
   showToast('👑 VIP kích hoạt thành công! Hết hạn ' + expiresAt);
 }
 
-async function checkSavedKey() {
+function checkSavedKey() {
   const key = localStorage.getItem('vip_key');
   const exp = localStorage.getItem('vip_expires');
-
-  // Không có key trong localStorage → bắt nhập ngay
-  if (!key || !exp || new Date(exp) <= new Date()) {
+  if (key && exp && new Date(exp) > new Date()) {
+    // Key hợp lệ — unlock ngay không cần hỏi lại
+    unlockVIP(exp);
+  } else {
+    // Xoá key cũ và bắt nhập key ngay khi vào app
     localStorage.removeItem('vip_key');
     localStorage.removeItem('vip_expires');
     showKeyModal();
-    return;
-  }
-
-  // Có key → verify lại với Supabase mỗi lần mở app
-  try {
-    const deviceId = getDeviceId();
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/keys?key=eq.${encodeURIComponent(key)}&select=expires_at,is_active,device_id`,
-      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-    );
-    const data = await res.json();
-
-    if (
-      !data.length ||
-      !data[0].is_active ||
-      new Date(data[0].expires_at) < new Date() ||
-      (data[0].device_id && data[0].device_id !== deviceId)
-    ) {
-      localStorage.removeItem('vip_key');
-      localStorage.removeItem('vip_expires');
-      showKeyModal();
-      return;
-    }
-
-    unlockVIP(data[0].expires_at.slice(0, 10));
-
-  } catch (e) {
-    // Mất mạng → cho vào tạm dựa trên localStorage
-    unlockVIP(exp);
   }
 }
 </script>
