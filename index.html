@@ -867,6 +867,471 @@ body::after {
 ══════════════════════════════════════════════════ */
 @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 .page.active .page-scroll > * { animation:fadeUp .28s ease forwards; }
+
+/* ══════════════════════════════════════════════════
+   RIPPLE EFFECT
+══════════════════════════════════════════════════ */
+button, .bnav-btn, .qa-btn, .aimlock-btn, .sens-preset-btn, .layout-btn {
+  position: relative;
+  overflow: hidden;
+}
+.ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0,255,136,0.35);
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-anim 0.6s ease-out forwards;
+  width: 80px; height: 80px;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes ripple-anim {
+  to { transform: translate(-50%,-50%) scale(4); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════════
+   BUTTON HIGHLIGHT ENHANCEMENTS
+══════════════════════════════════════════════════ */
+
+/* Bottom nav — glow on active */
+.bnav-btn {
+  transition: all 0.2s ease;
+}
+.bnav-btn.active {
+  filter: drop-shadow(0 0 8px var(--accent));
+}
+.bnav-btn:not(.active):hover {
+  transform: translateY(-2px);
+  color: var(--accent);
+}
+
+/* Quick action buttons — neon glow on hover/active */
+.qa-btn {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0,255,136,0.15) !important;
+}
+.qa-btn:hover {
+  background: rgba(0,255,136,0.15) !important;
+  border-color: rgba(0,255,136,0.5) !important;
+  box-shadow: 0 0 16px rgba(0,255,136,0.3), inset 0 0 12px rgba(0,255,136,0.05) !important;
+  transform: translateY(-2px) scale(1.03);
+}
+.qa-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 0 24px rgba(0,255,136,0.5) !important;
+}
+
+/* Aim lock buttons */
+.aimlock-btn {
+  transition: all 0.2s ease;
+}
+.aimlock-btn:not(.active):hover {
+  border-color: rgba(0,255,136,0.5) !important;
+  background: rgba(0,255,136,0.08) !important;
+  transform: scale(1.04);
+  box-shadow: 0 0 12px rgba(0,255,136,0.2);
+}
+.aimlock-btn.active {
+  box-shadow: 0 0 20px rgba(0,255,136,0.4), inset 0 0 10px rgba(0,255,136,0.1) !important;
+  border-color: var(--accent) !important;
+  animation: pulse-border 2s infinite;
+}
+@keyframes pulse-border {
+  0%,100% { box-shadow: 0 0 16px rgba(0,255,136,0.35), inset 0 0 8px rgba(0,255,136,0.08); }
+  50%      { box-shadow: 0 0 28px rgba(0,255,136,0.6), inset 0 0 14px rgba(0,255,136,0.15); }
+}
+
+/* Sensitivity preset buttons */
+.sens-preset-btn {
+  transition: all 0.2s ease;
+}
+.sens-preset-btn:not(.active):hover {
+  border-color: rgba(0,255,136,0.4) !important;
+  background: rgba(0,255,136,0.07) !important;
+  transform: translateY(-2px);
+}
+.sens-preset-btn.active {
+  box-shadow: 0 0 18px rgba(0,255,136,0.35) !important;
+  animation: pulse-border 2.5s infinite;
+}
+
+/* Layout buttons */
+.layout-btn {
+  transition: all 0.2s ease;
+}
+.layout-btn:not(.active):hover {
+  border-color: rgba(0,255,136,0.45) !important;
+  transform: translateY(-2px) scale(1.03);
+  background: rgba(0,255,136,0.06) !important;
+}
+.layout-btn.active {
+  box-shadow: 0 0 16px rgba(0,255,136,0.35) !important;
+}
+
+/* Assist / gyro / headlock mode buttons */
+.assist-lvl, .assist-target, .assist-when, .gyro-mode-btn, .hl-lvl-btn, .smooth-pre-btn {
+  transition: all 0.18s ease;
+}
+.assist-lvl:hover, .assist-target:hover, .assist-when:hover,
+.gyro-mode-btn:hover, .hl-lvl-btn:hover, .smooth-pre-btn:hover {
+  background: rgba(0,255,136,0.15) !important;
+  box-shadow: 0 0 10px rgba(0,255,136,0.25);
+  transform: scale(1.05);
+}
+.assist-lvl.active, .assist-target.active, .assist-when.active,
+.gyro-mode-btn.active, .hl-lvl-btn.active, .smooth-pre-btn.active {
+  box-shadow: 0 0 14px rgba(0,255,136,0.4) !important;
+}
+
+/* BOOST button — pulsing glow */
+.boost-btn {
+  box-shadow: 0 0 24px rgba(0,255,136,0.4), 0 4px 20px rgba(0,0,0,0.4) !important;
+  animation: boost-glow 2s ease-in-out infinite !important;
+}
+@keyframes boost-glow {
+  0%,100% { box-shadow: 0 0 24px rgba(0,255,136,0.4), 0 4px 20px rgba(0,0,0,0.4); }
+  50%      { box-shadow: 0 0 40px rgba(0,255,136,0.7), 0 4px 28px rgba(0,0,0,0.5); }
+}
+.boost-btn:hover {
+  transform: scale(1.05) !important;
+}
+.boost-btn:active { transform: scale(0.97) !important; }
+
+/* Apply button — neon highlight */
+.aim-apply-btn-full {
+  box-shadow: 0 0 20px rgba(0,255,136,0.35) !important;
+  transition: all 0.2s ease !important;
+}
+.aim-apply-btn-full:hover {
+  box-shadow: 0 0 36px rgba(0,255,136,0.6) !important;
+  transform: translateY(-2px) !important;
+}
+.aim-apply-btn-full:active { transform: scale(0.97) !important; }
+
+/* Touch latency optimize btn */
+.tl-optimize-btn {
+  transition: all 0.2s ease;
+}
+.tl-optimize-btn:hover {
+  box-shadow: 0 0 16px rgba(0,255,136,0.4) !important;
+  transform: scale(1.05);
+}
+
+/* VIP CTA button */
+.vip-cta-btn {
+  transition: all 0.2s ease !important;
+  box-shadow: 0 0 20px rgba(0,255,136,0.3) !important;
+}
+.vip-cta-btn:hover {
+  box-shadow: 0 0 36px rgba(0,255,136,0.55) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* upgrade-mini-btn */
+.upgrade-mini-btn {
+  transition: all 0.18s ease !important;
+}
+.upgrade-mini-btn:hover {
+  box-shadow: 0 0 12px rgba(0,255,136,0.4) !important;
+  transform: scale(1.06) !important;
+}
+
+/* Activate key button */
+#activate-btn:not(:disabled) {
+  box-shadow: 0 0 18px rgba(0,255,136,0.3) !important;
+}
+#activate-btn:not(:disabled):hover {
+  box-shadow: 0 0 30px rgba(0,255,136,0.55) !important;
+}
+
+/* Aim mini apply btn */
+.aim-apply-btn-mini {
+  transition: all 0.18s ease !important;
+}
+.aim-apply-btn-mini:hover {
+  box-shadow: 0 0 14px rgba(0,255,136,0.4) !important;
+  transform: scale(1.06) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   ADMIN PAGE
+══════════════════════════════════════════════════ */
+
+/* Hero header */
+.admin-hero {
+  position: relative;
+  padding: 28px 20px 20px;
+  overflow: hidden;
+  text-align: center;
+}
+.admin-hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,255,136,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.admin-scan-line {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,136,0.5), transparent);
+  animation: scan-move 3s linear infinite;
+  pointer-events: none;
+}
+@keyframes scan-move {
+  0%   { top: 0; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.admin-badge-tag {
+  display: inline-block;
+  font-family: var(--font-main);
+  font-size: 9px; letter-spacing: 3px; font-weight: 700;
+  color: var(--accent); border: 1px solid rgba(0,255,136,0.3);
+  padding: 3px 12px; border-radius: 20px;
+  margin-bottom: 10px;
+  background: rgba(0,255,136,0.06);
+}
+.admin-page-title {
+  font-family: var(--font-main);
+  font-size: 26px; font-weight: 900; letter-spacing: 3px;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 0 0 24px rgba(0,255,136,0.4);
+}
+.admin-page-title span { color: var(--accent); }
+
+/* Avatar card */
+.admin-avatar-card {
+  position: relative;
+  margin: 0 16px 20px;
+  background: linear-gradient(160deg, rgba(0,255,136,0.04), rgba(0,0,0,0.3));
+  border: 1px solid rgba(0,255,136,0.15);
+  border-radius: 20px;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Rotating rings behind avatar */
+.admin-avatar-ring-outer,
+.admin-avatar-ring-mid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(0,255,136,0.12);
+  transform: translate(-50%, calc(-50% - 30px));
+  pointer-events: none;
+}
+.admin-avatar-ring-outer {
+  width: 160px; height: 160px;
+  animation: ring-spin 12s linear infinite;
+  border-color: rgba(0,255,136,0.1);
+  border-style: dashed;
+}
+.admin-avatar-ring-mid {
+  width: 130px; height: 130px;
+  animation: ring-spin 8s linear infinite reverse;
+  border-color: rgba(0,255,136,0.15);
+}
+@keyframes ring-spin { to { transform: translate(-50%, calc(-50% - 30px)) rotate(360deg); } }
+
+/* Frame */
+.admin-avatar-frame {
+  position: relative;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(from 0deg, #00ff88, #00aaff, #aa88ff, #00ff88);
+  animation: spin-border 4s linear infinite;
+  margin-bottom: 14px;
+}
+@keyframes spin-border { to { filter: hue-rotate(360deg); } }
+
+.admin-avatar-inner {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #001a0e;
+  display: flex; align-items: center; justify-content: center;
+}
+.admin-avatar-inner img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.admin-avatar-fallback {
+  align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+}
+
+/* Corner decorations */
+.admin-corner {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-color: rgba(0,255,136,0.4);
+  border-style: solid;
+}
+.admin-corner-tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+.admin-corner-tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+.admin-corner-bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+.admin-corner-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+/* Name block */
+.admin-name-block { text-align: center; }
+.admin-name {
+  font-family: var(--font-main);
+  font-size: 20px; font-weight: 700; letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 14px rgba(0,255,136,0.35);
+  margin-bottom: 6px;
+}
+.admin-status-row {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-bottom: 10px;
+}
+.admin-online-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #00ff88;
+  box-shadow: 0 0 8px #00ff88;
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%,100% { box-shadow: 0 0 6px #00ff88; }
+  50%      { box-shadow: 0 0 14px #00ff88, 0 0 24px rgba(0,255,136,0.4); }
+}
+.admin-online-txt {
+  font-family: var(--font-mono); font-size: 10px;
+  color: rgba(0,255,136,0.75); letter-spacing: 1px;
+}
+.admin-role-badge {
+  display: inline-block;
+  font-family: var(--font-main); font-size: 9px; font-weight: 700;
+  letter-spacing: 2px;
+  padding: 4px 14px; border-radius: 20px;
+  background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,170,255,0.1));
+  border: 1px solid rgba(0,255,136,0.25);
+  color: var(--accent);
+}
+
+/* Contact section label */
+.admin-contact-label {
+  font-family: var(--font-main); font-size: 9px; font-weight: 700;
+  letter-spacing: 3px; color: var(--text3);
+  text-align: center; margin: 0 0 12px;
+}
+
+/* Contact cards */
+.admin-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 16px 20px;
+}
+
+.admin-contact-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.admin-contact-card:active { transform: scale(0.97); }
+.admin-contact-card:hover { transform: translateX(4px); border-color: rgba(255,255,255,0.15); }
+
+/* Platform-specific accents */
+.zalo-card:hover  { border-color: rgba(0,104,255,0.4); background: rgba(0,104,255,0.05); }
+.fb-card:hover    { border-color: rgba(24,119,242,0.4); background: rgba(24,119,242,0.05); }
+.tg-card:hover    { border-color: rgba(34,158,217,0.4); background: rgba(34,158,217,0.05); }
+
+.acc-icon-wrap {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.zalo-icon { background: rgba(0,104,255,0.12); border: 1px solid rgba(0,104,255,0.25); }
+.fb-icon   { background: rgba(24,119,242,0.12); border: 1px solid rgba(24,119,242,0.25); }
+.tg-icon   { background: rgba(34,158,217,0.12); border: 1px solid rgba(34,158,217,0.25); }
+
+.acc-info { flex: 1; min-width: 0; }
+.acc-platform {
+  font-family: var(--font-main); font-size: 13px; font-weight: 700;
+  color: #fff; letter-spacing: 1px; margin-bottom: 2px;
+}
+.acc-handle {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--accent); margin-bottom: 2px;
+}
+.acc-desc {
+  font-size: 10px; color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+.acc-arrow { color: rgba(255,255,255,0.25); flex-shrink: 0; transition: all 0.2s; }
+.admin-contact-card:hover .acc-arrow { color: rgba(255,255,255,0.6); transform: translateX(4px); }
+
+/* Subtle glow behind each card */
+.acc-glow {
+  position: absolute; inset: 0; border-radius: 14px;
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+.zalo-glow { background: radial-gradient(ellipse at left, rgba(0,104,255,0.08), transparent 70%); }
+.fb-glow   { background: radial-gradient(ellipse at left, rgba(24,119,242,0.08), transparent 70%); }
+.tg-glow   { background: radial-gradient(ellipse at left, rgba(34,158,217,0.08), transparent 70%); }
+.admin-contact-card:hover .acc-glow { opacity: 1; }
+
+/* Stats row */
+.admin-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 0 16px 16px;
+  background: rgba(0,255,136,0.04);
+  border: 1px solid rgba(0,255,136,0.1);
+  border-radius: 14px;
+  padding: 14px 0;
+}
+.admin-stat-item {
+  flex: 1; text-align: center;
+}
+.admin-stat-val {
+  font-family: var(--font-main); font-size: 18px; font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(0,255,136,0.4);
+  letter-spacing: 1px;
+}
+.admin-stat-lbl {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text3); letter-spacing: 1px; margin-top: 2px;
+}
+.admin-stat-divider {
+  width: 1px; height: 36px;
+  background: rgba(0,255,136,0.12);
+}
+
+/* Note */
+.admin-note {
+  margin: 0 16px 24px;
+  display: flex; gap: 8px; align-items: flex-start;
+  background: rgba(0,255,136,0.04);
+  border: 1px solid rgba(0,255,136,0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text3); line-height: 1.6;
+}
 </style>
 </head>
 <body>
@@ -1146,7 +1611,9 @@ body::after {
         <div class="vip-hero">
           <div class="vip-hero-bg"></div>
           <div class="vip-hero-content">
-            <div class="vip-crown">👑</div>
+            <div class="vip-crown">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M2 19h20M3 9l4 4 5-8 5 8 4-4-2 10H5L3 9z" stroke="#FFD700" stroke-width="2" stroke-linejoin="round" fill="#FFD70022"/><circle cx="3" cy="9" r="1.5" fill="#FFD700"/><circle cx="12" cy="5" r="1.5" fill="#FFD700"/><circle cx="21" cy="9" r="1.5" fill="#FFD700"/></svg>
+            </div>
             <div class="vip-hero-title">SPERNEW VIP</div>
             <div class="vip-hero-sub">Unlock full AI optimization power</div>
             <div class="vip-hero-sub vi">Mở khóa toàn bộ sức mạnh AI</div>
@@ -1155,32 +1622,32 @@ body::after {
 
         <div class="vip-features-grid">
           <div class="vip-feat-card">
-            <div class="vip-feat-icon">🎯</div>
+            <div class="vip-feat-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00ff88" stroke-width="1.5"/><circle cx="12" cy="12" r="5" stroke="#00ff88" stroke-width="1.5"/><circle cx="12" cy="12" r="2" fill="#00ff88"/><line x1="12" y1="3" x2="12" y2="6" stroke="#00ff88" stroke-width="2"/><line x1="12" y1="18" x2="12" y2="21" stroke="#00ff88" stroke-width="2"/><line x1="3" y1="12" x2="6" y2="12" stroke="#00ff88" stroke-width="2"/><line x1="18" y1="12" x2="21" y2="12" stroke="#00ff88" stroke-width="2"/></svg></div>
             <div class="vip-feat-title">AI AIM ENGINE</div>
             <div class="vip-feat-desc">Tối ưu độ chính xác điều khiển theo AI</div>
           </div>
           <div class="vip-feat-card">
-            <div class="vip-feat-icon">⚡</div>
+            <div class="vip-feat-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#FFD700" stroke-width="2" stroke-linejoin="round" fill="#FFD70022"/></svg></div>
             <div class="vip-feat-title">TURBO FRAME</div>
             <div class="vip-feat-desc">Tăng FPS tối đa, giảm drop frame</div>
           </div>
           <div class="vip-feat-card">
-            <div class="vip-feat-icon">🛡️</div>
+            <div class="vip-feat-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5 4 9 9 10 5-1 9-5 9-10V7L12 2z" stroke="#00aaff" stroke-width="2" fill="#00aaff11"/><path d="M9 12l2 2 4-4" stroke="#00aaff" stroke-width="2" stroke-linecap="round"/></svg></div>
             <div class="vip-feat-title">THERMAL AI</div>
             <div class="vip-feat-desc">Kiểm soát nhiệt độ thông minh 24/7</div>
           </div>
           <div class="vip-feat-card">
-            <div class="vip-feat-icon">🌐</div>
+            <div class="vip-feat-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00ff88" stroke-width="1.5"/><path d="M12 3c-2 3-3 6-3 9s1 6 3 9M12 3c2 3 3 6 3 9s-1 6-3 9M3 12h18" stroke="#00ff88" stroke-width="1.5"/></svg></div>
             <div class="vip-feat-title">NET ACCELERATOR</div>
             <div class="vip-feat-desc">Giảm ping, tối ưu kết nối game</div>
           </div>
           <div class="vip-feat-card">
-            <div class="vip-feat-icon">🔊</div>
+            <div class="vip-feat-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="#ff6b35" stroke-width="2" fill="#ff6b3522"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" stroke="#ff6b35" stroke-width="2" stroke-linecap="round"/></svg></div>
             <div class="vip-feat-title">SOUND ENHANCER</div>
             <div class="vip-feat-desc">Nâng cao âm thanh định hướng</div>
           </div>
           <div class="vip-feat-card">
-            <div class="vip-feat-icon">📊</div>
+            <div class="vip-feat-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="#aa88ff" stroke-width="2.5" stroke-linecap="round"/></svg></div>
             <div class="vip-feat-title">DEEP ANALYTICS</div>
             <div class="vip-feat-desc">Phân tích hiệu năng chuyên sâu</div>
           </div>
@@ -1227,7 +1694,7 @@ body::after {
         </div>
 
         <!-- 1. AIM LOCK v1–v4 -->
-        <div class="aim-section-title">🔒 Aim Lock — Khoá tâm</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00ff88" stroke-width="2" fill="#00ff8811"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#00ff88" stroke-width="2"/></svg>Aim Lock — Khoá tâm</div>
         <div class="aimlock-grid">
           <button class="aimlock-btn" id="al-v1" onclick="setAimLock(this,'v1')">
             <span class="al-ver">v1</span><span class="al-name">Nhẹ</span><span class="al-desc">Hỗ trợ nhẹ</span>
@@ -1249,7 +1716,7 @@ body::after {
         </div>
 
         <!-- 2. NHẸ TÂM -->
-        <div class="aim-section-title">🪶 Nhẹ tâm — Smooth Aim</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5l6.74-6.76z" stroke="#00ff88" stroke-width="2"/><path d="M16 8L2 22M17.5 15H9" stroke="#00ff88" stroke-width="2"/></svg>Nhẹ tâm — Smooth Aim</div>
         <div class="smooth-card">
           <div class="smooth-preview-row">
             <div class="smooth-bar-wrap">
@@ -1269,7 +1736,7 @@ body::after {
         </div>
 
         <!-- 3. AIM ASSIST -->
-        <div class="aim-section-title">🤖 Aim Assist — Hỗ trợ ngắm</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><rect x="3" y="8" width="18" height="13" rx="2" stroke="#00ff88" stroke-width="2"/><path d="M8 8V6a4 4 0 018 0v2" stroke="#00ff88" stroke-width="2"/><circle cx="9" cy="14" r="1.5" fill="#00ff88"/><circle cx="15" cy="14" r="1.5" fill="#00ff88"/><path d="M9 18h6" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/></svg>Aim Assist — Hỗ trợ ngắm</div>
         <div class="assist-card">
           <div class="assist-toggle-row">
             <div><div class="assist-title">Aim Assist</div><div class="assist-sub">Hỗ trợ kéo tâm tự nhiên khi ngắm</div></div>
@@ -1304,7 +1771,7 @@ body::after {
         </div>
 
         <!-- 4. AIM HOLD -->
-        <div class="aim-section-title">🖐️ Aim Hold — Giữ tâm</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M18 11V8a2 2 0 10-4 0v3M14 11V6a2 2 0 10-4 0v5M10 11V8a2 2 0 10-4 0v8a6 6 0 0012 0v-5a2 2 0 10-4 0v2" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/></svg>Aim Hold — Giữ tâm</div>
         <div class="hold-card">
           <div class="hold-toggle-row">
             <div><div class="hold-title">Aim Hold Mode</div><div class="hold-sub">Giữ tâm ổn định khi bắn liên tục</div></div>
@@ -1327,19 +1794,19 @@ body::after {
         </div>
 
         <!-- 5. SENSITIVITY (nhạy) -->
-        <div class="aim-section-title">🎚️ Nhạy — Sensitivity Tuning</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M4 6h16M4 12h16M4 18h16" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="6" r="2" fill="#00ff88"/><circle cx="16" cy="12" r="2" fill="#00ff88"/><circle cx="10" cy="18" r="2" fill="#00ff88"/></svg>Nhạy — Sensitivity Tuning</div>
         <div class="sens-preset-grid">
           <button class="sens-preset-btn active" onclick="applySensPreset(this,'balanced')">
-            <span class="sp-icon">⚖️</span><span class="sp-name">Cân bằng</span><span class="sp-desc">Balanced</span>
+            <span class="sp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8l7-5 7 5M3 12h4l2 6H5M15 12h4l2 6h-4" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="sp-name">Cân bằng</span><span class="sp-desc">Balanced</span>
           </button>
           <button class="sens-preset-btn" onclick="applySensPreset(this,'sniper')">
-            <span class="sp-icon">🎯</span><span class="sp-name">Sniper</span><span class="sp-desc">Ít giật</span>
+            <span class="sp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00ff88" stroke-width="1.5"/><circle cx="12" cy="12" r="5" stroke="#00ff88" stroke-width="1.5"/><circle cx="12" cy="12" r="2" fill="#00ff88"/></svg></span><span class="sp-name">Sniper</span><span class="sp-desc">Ít giật</span>
           </button>
           <button class="sens-preset-btn" onclick="applySensPreset(this,'rush')">
-            <span class="sp-icon">⚡</span><span class="sp-name">Rush</span><span class="sp-desc">Phản xạ nhanh</span>
+            <span class="sp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#FFD700" stroke-width="2" fill="#FFD70022"/></svg></span><span class="sp-name">Rush</span><span class="sp-desc">Phản xạ nhanh</span>
           </button>
           <button class="sens-preset-btn" onclick="applySensPreset(this,'pro')">
-            <span class="sp-icon">👑</span><span class="sp-name">Pro</span><span class="sp-desc">Kéo tâm chuẩn</span>
+            <span class="sp-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2 19h20M3 9l4 4 5-8 5 8 4-4-2 10H5L3 9z" stroke="#FFD700" stroke-width="2" stroke-linejoin="round"/></svg></span><span class="sp-name">Pro</span><span class="sp-desc">Kéo tâm chuẩn</span>
           </button>
         </div>
         <div class="sens-sliders">
@@ -1366,7 +1833,7 @@ body::after {
         </div>
 
         <!-- 6. BÁM ĐẦU / HEAD LOCK -->
-        <div class="aim-section-title">💀 Bám đầu — Head Tracking</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="10" r="6" stroke="#ff4d6a" stroke-width="2"/><path d="M9 10a1 1 0 102 0 1 1 0 00-2 0zM13 10a1 1 0 102 0 1 1 0 00-2 0z" fill="#ff4d6a"/><path d="M9 14h2v2H9zM13 14h2v2h-2zM8 20h8" stroke="#ff4d6a" stroke-width="2" stroke-linecap="round"/></svg>Bám đầu — Head Tracking</div>
         <div class="headlock-card">
           <div class="headlock-visual">
             <div class="headlock-target" id="headlock-target">
@@ -1403,7 +1870,7 @@ body::after {
         </div>
 
         <!-- 7. GYROSCOPE -->
-        <div class="aim-section-title">🔄 Gyroscope — Con quay hồi chuyển</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c-2 0-4-4-4-9s2-9 4-9m0 18c2 0 4-4 4-9s-2-9-4-9m-9 9a9 9 0 019-9" stroke="#00aaff" stroke-width="2"/></svg>Gyroscope — Con quay hồi chuyển</div>
         <div class="gyro-card">
           <div class="gyro-toggle-row">
             <div><div class="gyro-title">Bật Gyroscope Aim</div><div class="gyro-sub">Nghiêng máy để kéo tâm</div></div>
@@ -1430,7 +1897,7 @@ body::after {
         </div>
 
         <!-- 8. TOUCH LATENCY -->
-        <div class="aim-section-title">⚡ Touch Latency — Giảm lag chạm</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#FFD700" stroke-width="2" fill="#FFD70022"/></svg>Touch Latency — Giảm lag chạm</div>
         <div class="touch-latency-card">
           <div class="tl-gauge-row">
             <div class="tl-gauge">
@@ -1444,7 +1911,7 @@ body::after {
             <div class="tl-info">
               <div class="tl-info-title">Touch Latency</div>
               <div class="tl-info-sub" id="tl-status-text">TỐT — Good</div>
-              <button class="tl-optimize-btn" onclick="optimizeTouchLatency()">⚡ TỐI ƯU NGAY</button>
+              <button class="tl-optimize-btn" onclick="optimizeTouchLatency()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.4"/></svg>TỐI ƯU NGAY</button>
             </div>
           </div>
           <div class="tl-options">
@@ -1455,7 +1922,7 @@ body::after {
         </div>
 
         <!-- 9. LAYOUT NGÓN -->
-        <div class="aim-section-title">✋ Layout Ngón Tay</div>
+        <div class="aim-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M18 11V8a2 2 0 10-4 0v3M14 11V6a2 2 0 10-4 0v5M10 11V8a2 2 0 10-4 0v8a6 6 0 0012 0v-5a2 2 0 10-4 0v2" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/></svg>Layout Ngón Tay</div>
         <div class="layout-grid">
           <button class="layout-btn" onclick="selectLayout(this,'2')">
             <div class="layout-fingers"><div class="finger f-thumb-l"></div><div class="finger f-thumb-r"></div></div>
@@ -1552,6 +2019,149 @@ body::after {
       </div>
     </div>
 
+
+    <!-- PAGE: ADMIN INFO -->
+    <div class="page" id="page-admin">
+      <div class="page-scroll">
+
+        <!-- HERO HEADER -->
+        <div class="admin-hero">
+          <div class="admin-hero-bg"></div>
+          <div class="admin-scan-line"></div>
+          <div class="admin-title-wrap">
+            <div class="admin-badge-tag">ADMIN · SPERNEW</div>
+            <div class="admin-page-title">THÔNG TIN<br><span>ADMIN</span></div>
+          </div>
+        </div>
+
+        <!-- AVATAR CARD -->
+        <div class="admin-avatar-card">
+          <div class="admin-avatar-ring-outer"></div>
+          <div class="admin-avatar-ring-mid"></div>
+          <div class="admin-avatar-frame">
+            <div class="admin-avatar-inner">
+              <!-- Ảnh admin: thay src bên dưới bằng link ảnh thật -->
+              <img id="admin-avatar-img"
+                src="https://sf-static.upanhlaylink.com/img/image_2026032908b0dc0c6571f1e01cbd954b962b09d1.jpg"
+                alt="Admin"
+                onerror="this.style.display='none';document.getElementById('admin-avatar-fallback').style.display='flex'"
+              />
+              <div id="admin-avatar-fallback" style="display:none" class="admin-avatar-fallback">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="4" stroke="#00ff88" stroke-width="2"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="admin-corner admin-corner-tl"></div>
+          <div class="admin-corner admin-corner-tr"></div>
+          <div class="admin-corner admin-corner-bl"></div>
+          <div class="admin-corner admin-corner-br"></div>
+
+          <!-- Name + Status -->
+          <div class="admin-name-block">
+            <div class="admin-name">SperNew Admin</div>
+            <div class="admin-status-row">
+              <span class="admin-online-dot"></span>
+              <span class="admin-online-txt">Online · Phản hồi nhanh</span>
+            </div>
+            <div class="admin-role-badge">⚡ OWNER &amp; DEVELOPER</div>
+          </div>
+        </div>
+
+        <!-- CONTACT CARDS -->
+        <div class="admin-contact-label">LIÊN HỆ · CONTACT</div>
+
+        <div class="admin-contacts">
+
+          <!-- ZALO -->
+          <a class="admin-contact-card zalo-card" href="https://zalo.me/0336854208" target="_blank" onclick="playSound('click')">
+            <div class="acc-icon-wrap zalo-icon">
+              <svg width="26" height="26" viewBox="0 0 50 50" fill="none">
+                <rect width="50" height="50" rx="12" fill="#0068FF"/>
+                <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="Arial">Z</text>
+              </svg>
+            </div>
+            <div class="acc-info">
+              <div class="acc-platform">Zalo</div>
+              <div class="acc-handle">@SpernewAdmin</div>
+              <div class="acc-desc">Chat trực tiếp · Mua key VIP</div>
+            </div>
+            <div class="acc-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="acc-glow zalo-glow"></div>
+          </a>
+
+          <!-- FACEBOOK -->
+          <a class="admin-contact-card fb-card" href="https://www.facebook.com/share/1CjgQCh4n2/?mibextid=wwXIfr" target="_blank" onclick="playSound('click')">
+            <div class="acc-icon-wrap fb-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <rect width="24" height="24" rx="6" fill="#1877F2"/>
+                <path d="M16 4h-2a4 4 0 00-4 4v2H8v3h2v7h3v-7h2.5l.5-3h-3V8a1 1 0 011-1h2V4z" fill="white"/>
+              </svg>
+            </div>
+            <div class="acc-info">
+              <div class="acc-platform">Facebook</div>
+              <div class="acc-handle">SperNew Official</div>
+              <div class="acc-desc">Fanpage · Tin tức · Update</div>
+            </div>
+            <div class="acc-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="acc-glow fb-glow"></div>
+          </a>
+
+          <!-- TELEGRAM -->
+          <a class="admin-contact-card tg-card" href="https://t.me/spernew" target="_blank" onclick="playSound('click')">
+            <div class="acc-icon-wrap tg-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <rect width="24" height="24" rx="6" fill="#229ED9"/>
+                <path d="M20 4L3 11l6 2 2 6 3-4 5 3 1-14z" fill="white" opacity="0.9"/>
+                <path d="M9 13l1 5 3-4" fill="#229ED9"/>
+              </svg>
+            </div>
+            <div class="acc-info">
+              <div class="acc-platform">Telegram</div>
+              <div class="acc-handle">@SpernewAdmin</div>
+              <div class="acc-desc">Kênh thông báo · Support</div>
+            </div>
+            <div class="acc-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="acc-glow tg-glow"></div>
+          </a>
+
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="admin-stats-row">
+          <div class="admin-stat-item">
+            <div class="admin-stat-val">500+</div>
+            <div class="admin-stat-lbl">Người dùng</div>
+          </div>
+          <div class="admin-stat-divider"></div>
+          <div class="admin-stat-item">
+            <div class="admin-stat-val">24/7</div>
+            <div class="admin-stat-lbl">Hỗ trợ</div>
+          </div>
+          <div class="admin-stat-divider"></div>
+          <div class="admin-stat-item">
+            <div class="admin-stat-val">v3.0</div>
+            <div class="admin-stat-lbl">Phiên bản</div>
+          </div>
+        </div>
+
+        <!-- NOTE -->
+        <div class="admin-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9" stroke="#00ff88" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>Liên hệ admin để mua key VIP, báo lỗi hoặc yêu cầu tính năng mới. Phản hồi trong vòng 1–6 giờ.</span>
+        </div>
+
+      </div>
+    </div>
+
   </div><!-- end pages-container -->
 
   <!-- BOTTOM NAV -->
@@ -1575,6 +2185,10 @@ body::after {
     <button class="bnav-btn" data-page="aimlab" onclick="switchPage('aimlab')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><line x1="12" y1="3" x2="12" y2="7" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="7" y2="12" stroke="currentColor" stroke-width="2"/><line x1="17" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/></svg>
       <span>AIM LAB</span>
+    </button>
+    <button class="bnav-btn" data-page="admin" onclick="switchPage('admin')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Admin</span>
     </button>
     <button class="bnav-btn" data-page="settings" onclick="switchPage('settings')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>
@@ -1603,14 +2217,14 @@ body::after {
     <div class="corner corner-tr"></div>
     <div class="corner corner-bl"></div>
     <div class="corner corner-br"></div>
-    <span class="key-modal-icon">🔐</span>
+    <span class="key-modal-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00ff88" stroke-width="2" fill="#00ff8811"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="#00ff88"/></svg></span>
     <div class="key-modal-title">NHẬP KEY VIP</div>
     <div class="key-modal-sub">Liên hệ admin để lấy key kích hoạt</div>
     <input id="key-input" placeholder="Nhập access key của bạn..."
       onkeydown="if(event.key==='Enter')activateKey()">
     <div id="key-msg"></div>
-    <button id="activate-btn" onclick="activateKey()">⚡ KÍCH HOẠT</button>
-    <div class="key-modal-lock">🔒 1 KEY — 1 THIẾT BỊ</div>
+    <button id="activate-btn" onclick="activateKey()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.3"/></svg>KÍCH HOẠT</button>
+    <div class="key-modal-lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/></svg>1 KEY — 1 THIẾT BỊ</div>
   </div>
 </div>
 
@@ -1629,6 +2243,133 @@ body::after {
       e.preventDefault();
   }, { passive: false });
 })();
+
+// ============================================================
+//   SOUND ENGINE — Web Audio API
+// ============================================================
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playSound(type) {
+  try {
+    const s = document.getElementById('s-sound');
+    if (s && !s.checked) return;
+    const ctx = getAudioCtx();
+    const g = ctx.createGain();
+    g.connect(ctx.destination);
+
+    if (type === 'click') {
+      // Short neon tick
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(880, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      o.connect(g);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.1);
+    } else if (type === 'toggle-on') {
+      const o = ctx.createOscillator();
+      o.type = 'square';
+      o.frequency.setValueAtTime(600, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.12);
+      g.gain.setValueAtTime(0.08, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      o.connect(g);
+      o.start(); o.stop(ctx.currentTime + 0.15);
+    } else if (type === 'toggle-off') {
+      const o = ctx.createOscillator();
+      o.type = 'square';
+      o.frequency.setValueAtTime(500, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(250, ctx.currentTime + 0.1);
+      g.gain.setValueAtTime(0.07, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      o.connect(g);
+      o.start(); o.stop(ctx.currentTime + 0.12);
+    } else if (type === 'boost') {
+      // Power up sweep
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(200, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.5);
+      g.gain.setValueAtTime(0.12, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      o.connect(g);
+      o.start(); o.stop(ctx.currentTime + 0.5);
+    } else if (type === 'success') {
+      // Dual chord
+      [523, 659, 784].forEach((f, i) => {
+        const o = ctx.createOscillator();
+        o.type = 'sine'; o.frequency.value = f;
+        const gg = ctx.createGain();
+        gg.gain.setValueAtTime(0, ctx.currentTime + i * 0.08);
+        gg.gain.linearRampToValueAtTime(0.1, ctx.currentTime + i * 0.08 + 0.04);
+        gg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.2);
+        o.connect(gg); gg.connect(ctx.destination);
+        o.start(ctx.currentTime + i * 0.08);
+        o.stop(ctx.currentTime + i * 0.08 + 0.25);
+      });
+    } else if (type === 'nav') {
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(440, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.06);
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      o.connect(g); o.start(); o.stop(ctx.currentTime + 0.08);
+    } else if (type === 'error') {
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(300, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.2);
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      o.connect(g); o.start(); o.stop(ctx.currentTime + 0.22);
+    }
+  } catch(e) {}
+}
+
+// ── RIPPLE effect on buttons ──────────────────────────────────
+function addRipple(btn, e) {
+  const existing = btn.querySelector('.ripple-wave');
+  if (existing) existing.remove();
+  const rect = btn.getBoundingClientRect();
+  const x = (e.clientX || rect.left + rect.width/2) - rect.left;
+  const y = (e.clientY || rect.top + rect.height/2) - rect.top;
+  const r = document.createElement('span');
+  r.className = 'ripple-wave';
+  r.style.cssText = `left:${x}px;top:${y}px`;
+  btn.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
+
+// Global click sound + ripple for all buttons
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('button, .bnav-btn, .qa-btn, .aimlock-btn, .sens-preset-btn, .layout-btn, .assist-lvl, .assist-target, .assist-when, .gyro-mode-btn, .hl-lvl-btn, .smooth-pre-btn, .tl-optimize-btn');
+  if (!btn) return;
+  if (btn.classList.contains('bnav-btn')) {
+    playSound('nav');
+  } else if (btn.id === 'boost-btn' || btn.classList.contains('aim-apply-btn-full') || btn.classList.contains('aim-apply-btn-mini')) {
+    playSound('boost');
+  } else {
+    playSound('click');
+  }
+  addRipple(btn, e);
+}, true);
+
+// Toggle sound
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'checkbox') {
+    playSound(e.target.checked ? 'toggle-on' : 'toggle-off');
+  }
+}, true);
+
 
 // ============ SPLASH ============
 const splashMessages = [
@@ -1712,20 +2453,34 @@ function switchPage(id) {
 }
 
 // ============ FEATURES ============
+const svgIcon = {
+  fps: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#00ff88" stroke-width="2" fill="#00ff8822"/></svg>`,
+  ram: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="10" rx="2" stroke="#00aaff" stroke-width="2" fill="#00aaff11"/><path d="M6 7V5M10 7V5M14 7V5M18 7V5M6 17v2M10 17v2M14 17v2M18 17v2" stroke="#00aaff" stroke-width="2" stroke-linecap="round"/></svg>`,
+  thermal: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" stroke="#ff6b35" stroke-width="2" fill="#ff6b3511"/></svg>`,
+  network: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M1 6s4-4 11-4 11 4 11 4M5 10s2.5-2.5 7-2.5S19 10 19 10M9 14s1-1 3-1 3 1 3 1M12 18v1" stroke="#aa88ff" stroke-width="2" stroke-linecap="round"/></svg>`,
+  battery: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="16" height="10" rx="2" stroke="#00ff88" stroke-width="2" fill="#00ff8811"/><path d="M22 11v2" stroke="#00ff88" stroke-width="3" stroke-linecap="round"/><path d="M6 12h8" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/></svg>`,
+  aim: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00ff88" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="#00ff88" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="#00ff88"/></svg>`,
+  turbo: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#FFD700" stroke-width="2" fill="#FFD70022"/></svg>`,
+  shield: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5 4 9 9 10 5-1 9-5 9-10V7L12 2z" stroke="#00aaff" stroke-width="2" fill="#00aaff11"/><path d="M9 12l2 2 4-4" stroke="#00aaff" stroke-width="2" stroke-linecap="round"/></svg>`,
+  globe: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00ff88" stroke-width="1.5"/><path d="M12 3c-2 3-3 6-3 9s1 6 3 9M12 3c2 3 3 6 3 9s-1 6-3 9M3 12h18" stroke="#00ff88" stroke-width="1.5"/></svg>`,
+  sound: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="#ff6b35" stroke-width="2" fill="#ff6b3511"/><path d="M15.54 8.46a5 5 0 010 7.07" stroke="#ff6b35" stroke-width="2" stroke-linecap="round"/></svg>`,
+  chart: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="#aa88ff" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+};
+
 const freeFeatures = [
-  { icon: '⚡', name: 'FPS Stabilizer', desc: 'Ổn định khung hình / Frame stabilization', id: 'fps-stab' },
-  { icon: '🧹', name: 'RAM Cleaner', desc: 'Dọn RAM nhanh / Quick memory clean', id: 'ram-clean' },
-  { icon: '🌡️', name: 'Thermal Monitor', desc: 'Theo dõi nhiệt độ / Temperature tracking', id: 'thermal' },
-  { icon: '📶', name: 'Network Monitor', desc: 'Theo dõi mạng / Network tracking', id: 'net-mon' },
-  { icon: '🔋', name: 'Battery Saver', desc: 'Tiết kiệm pin / Battery optimization', id: 'bat-save' },
+  { icon: svgIcon.fps, name: 'FPS Stabilizer', desc: 'Ổn định khung hình / Frame stabilization', id: 'fps-stab' },
+  { icon: svgIcon.ram, name: 'RAM Cleaner', desc: 'Dọn RAM nhanh / Quick memory clean', id: 'ram-clean' },
+  { icon: svgIcon.thermal, name: 'Thermal Monitor', desc: 'Theo dõi nhiệt độ / Temperature tracking', id: 'thermal' },
+  { icon: svgIcon.network, name: 'Network Monitor', desc: 'Theo dõi mạng / Network tracking', id: 'net-mon' },
+  { icon: svgIcon.battery, name: 'Battery Saver', desc: 'Tiết kiệm pin / Battery optimization', id: 'bat-save' },
 ];
 const vipFeatures = [
-  { icon: '🎯', name: 'AI Aim Engine', desc: 'Tối ưu điều khiển AI / AI control optimizer', id: 'aim-eng' },
-  { icon: '🚀', name: 'Turbo Frame', desc: 'Tăng FPS tối đa / Maximum FPS boost', id: 'turbo' },
-  { icon: '🛡️', name: 'Thermal AI Guard', desc: 'Kiểm soát nhiệt AI / AI thermal control', id: 'therm-ai' },
-  { icon: '🌐', name: 'Net Accelerator', desc: 'Giảm ping / Ping reducer', id: 'net-acc' },
-  { icon: '🔊', name: 'Sound Enhancer', desc: 'Tăng âm thanh định hướng / Directional audio', id: 'sound-en' },
-  { icon: '📊', name: 'Deep Analytics', desc: 'Phân tích chuyên sâu / Deep analytics', id: 'analytics' },
+  { icon: svgIcon.aim, name: 'AI Aim Engine', desc: 'Tối ưu điều khiển AI / AI control optimizer', id: 'aim-eng' },
+  { icon: svgIcon.turbo, name: 'Turbo Frame', desc: 'Tăng FPS tối đa / Maximum FPS boost', id: 'turbo' },
+  { icon: svgIcon.shield, name: 'Thermal AI Guard', desc: 'Kiểm soát nhiệt AI / AI thermal control', id: 'therm-ai' },
+  { icon: svgIcon.globe, name: 'Net Accelerator', desc: 'Giảm ping / Ping reducer', id: 'net-acc' },
+  { icon: svgIcon.sound, name: 'Sound Enhancer', desc: 'Tăng âm thanh định hướng / Directional audio', id: 'sound-en' },
+  { icon: svgIcon.chart, name: 'Deep Analytics', desc: 'Phân tích chuyên sâu / Deep analytics', id: 'analytics' },
 ];
 
 function buildFeatures() {
@@ -1741,7 +2496,7 @@ function buildFeatList(containerId, features, isVip) {
     const item = document.createElement('div');
     item.className = 'feat-item';
     item.innerHTML = `
-      <div class="feat-icon">${f.icon}</div>
+      <div class="feat-icon" style="display:flex;align-items:center;justify-content:center">${f.icon}</div>
       <div class="feat-info">
         <div class="feat-name">${f.name}</div>
         <div class="feat-desc">${f.desc}</div>
@@ -1892,6 +2647,7 @@ function animateScoreRing(score) {
 
 // ============ BOOST ============
 function runBoost() {
+  playSound('boost');
   const overlay = document.getElementById('boost-overlay');
   const text = document.getElementById('boost-overlay-text');
   const pct = document.getElementById('boost-overlay-pct');
@@ -2268,7 +3024,7 @@ async function activateKey() {
         localStorage.setItem('vip_key', key);
         localStorage.setItem('vip_expires', exp);
         msgEl.style.color = '#00ff88';
-        msgEl.textContent = '✅ Kích hoạt thành công!';
+        msgEl.textContent = '✅ Kích hoạt thành công!'; playSound('success');
         setTimeout(() => {
           document.getElementById('key-modal').style.display = 'none';
           unlockVIP(exp);
