@@ -1,3 +1,215 @@
+// ============================================================
+//   SPERNEW OPTIMIZE — SCRIPT CHO TỪNG NÚT TRONG FORM
+// ============================================================
+
+// ============ 1. HOME PAGE - QUICK ACTIONS ============
+function quickAction(type) {
+    const actions = {
+        clear: () => {
+            showToast('🧹 Đã dọn RAM, giải phóng ~512MB');
+            simulateRamClean();
+        },
+        cool: () => {
+            showToast('❄️ Chế độ làm mát đã kích hoạt');
+            simulateCoolDown();
+        },
+        boost: () => {
+            showToast('⚡ FPS Boost đã áp dụng');
+            simulateFPSBoost();
+        },
+        network: () => {
+            showToast('🌐 Đã tối ưu kết nối mạng');
+            simulateNetworkOptimize();
+        }
+    };
+    actions[type]?.();
+}
+
+function simulateRamClean() {
+    const ramValue = document.getElementById('val-ram');
+    if (ramValue) {
+        let current = parseInt(ramValue.textContent);
+        let newVal = Math.max(15, current - 25);
+        ramValue.innerHTML = newVal + '<span>%</span>';
+        document.getElementById('bar-ram').style.width = newVal + '%';
+    }
+}
+
+function simulateCoolDown() {
+    const tempValue = document.getElementById('val-temp');
+    if (tempValue) {
+        let current = parseInt(tempValue.textContent);
+        let newVal = Math.max(32, current - 8);
+        tempValue.innerHTML = newVal + '<span>°</span>';
+        document.getElementById('bar-temp').style.width = (newVal / 80 * 100) + '%';
+    }
+}
+
+function simulateFPSBoost() {
+    const fpsValue = document.getElementById('val-fps');
+    if (fpsValue) {
+        let current = parseInt(fpsValue.textContent);
+        let newVal = Math.min(120, current + 15);
+        fpsValue.innerHTML = newVal;
+        document.getElementById('bar-fps').style.width = (newVal / 120 * 100) + '%';
+    }
+}
+
+function simulateNetworkOptimize() {
+    const pingEl = document.getElementById('net-ping');
+    if (pingEl) {
+        let current = parseInt(pingEl.textContent);
+        let newVal = Math.max(12, current - 10);
+        pingEl.textContent = newVal + ' ms';
+        showToast(`Ping giảm từ ${current}ms
+// 36. Object pooling
+class ObjectPool { constructor(createFn, initialSize=100) { this.pool = []; this.create = createFn; for(let i=0;i<initialSize;i++) this.pool.push(this.create()); } get() { return this.pool.pop() || this.create(); } release(obj) { this.pool.push(obj); } }
+
+// 37. Remove event listeners on destroy
+const signal = new AbortController(); element.addEventListener('click', handler, { signal: signal.signal }); // later: signal.abort();
+
+// 38. WebGL renderer check
+const isWebGL = !!canvas.getContext('webgl') || !!canvas.getContext('experimental-webgl');
+
+// 39. RAF with delta time
+let lastTimestamp = 0; function animate(timestamp) { const delta = Math.min(32, timestamp - lastTimestamp); update(delta / 16.67); lastTimestamp = timestamp; requestAnimationFrame(animate); }
+
+// 40. Sprite batching
+function drawSprites(images) { ctx.beginPath(); images.forEach(img => ctx.drawImage(img, img.x, img.y)); }
+
+// 41. Cache DOM queries
+const $ = (sel) => document.querySelector(sel); const gameEl = $('#game');
+
+// 42. Memory leak prevention
+function cleanUp() { cancelAnimationFrame(animId); removeAllListeners(); gameObjects.length = 0; }
+
+// 43. Visibility API (pause game)
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); else resumeGame(); });
+
+// 44. Simple AABB collision
+function collides(r1, r2) { return !(r2.x > r1.x + r1.w || r2.x + r2.w < r1.x || r2.y > r1.y + r1.h || r2.y + r2.h < r1.y); }
+
+// 45. Frame-independent movement
+velocity = speed * deltaTime;
+
+// 46. Audio sprite (one audio file for all SFX)
+const sfx = new Audio('sounds.mp3'); sfx.currentTime = 1.5; sfx.play();
+
+// 47. Touch hold detection
+let holdTimer; element.addEventListener('touchstart', () => { holdTimer = setTimeout(() => onHold(), 500); }); element.addEventListener('touchend', () => clearTimeout(holdTimer));
+
+// 48. Responsive canvas resize
+function resizeCanvas() { const size = Math.min(window.innerWidth, window.innerHeight); canvas.width = size; canvas.height = size; }
+
+// 49. Disable context menu on canvas
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// 50. Fullscreen API
+function toggleFullscreen() { if (!document.fullscreenElement) canvas.requestFullscreen(); else document.exitFullscreen(); }
+// 16. RequestAnimationFrame loop
+function gameLoop() { update(); render(); requestAnimationFrame(gameLoop); }
+
+// 17. FPS limiter (60fps)
+let lastTime = 0;
+function throttledLoop(now) { if (now - lastTime >= 16.67) { update(); lastTime = now; } requestAnimationFrame(throttledLoop); }
+
+// 18. Touch & mouse unified input
+function getInputPos(e) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; const clientX = e.touches ? e.touches[0].clientX : e.clientX; return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY }; }
+
+// 19. Detect device orientation
+window.addEventListener('deviceorientation', (e) => { const gamma = e.gamma; // left-right (-90 to 90) const beta = e.beta; // front-back });
+
+// 20. Virtual joystick
+class Joystick { constructor(element) { this.element = element; this.active = false; this.x = 0; this.y = 0; /* add touch events */ } }
+
+// 21. Frame-skip for slow devices
+let frameSkip = 1; if (performance.now() - lastFrame > 33) frameSkip = 2;
+
+// 22. Dynamic resolution scaling
+function setResolution(scale) { canvas.width = baseWidth * scale; canvas.height = baseHeight * scale; }
+
+// 23. Measure FPS
+let fps = 60; let frameCount = 0; setInterval(() => { fps = frameCount; frameCount = 0; }, 1000);
+
+// 24. Throttle resize events
+let resizeTimeout; window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { resizeGame(); }, 100); });
+
+// 25. Lock screen orientation
+screen.orientation?.lock('landscape').catch(() => {});
+
+// 26. Prevent pull-to-refresh
+document.body.addEventListener('touchmove', (e) => { if (e.target === canvas) e.preventDefault(); }, { passive: false });
+
+// 27. Game state persistence
+localStorage.setItem('gameScore', score); const savedScore = localStorage.getItem('gameScore');
+
+// 28. Audio context resume on first touch
+document.addEventListener('touchstart', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+
+// 29. Device pixel ratio scaling
+const dpr = window.devicePixelRatio || 1; canvas.width = width * dpr; canvas.style.width = `${width}px`;
+
+// 30. Low power mode detection
+if (navigator.getBattery) { navigator.getBattery().then(battery => { if (battery.savePower) setQuality('low'); }); }
+
+// 31. Debounce input
+let inputCooldown = false; function handleInput() { if (inputCooldown) return; inputCooldown = true; setTimeout(() => inputCooldown = false, 16); }
+
+// 32. Canvas pool for particles
+const particlePool = []; function getParticle() { return particlePool.pop() || new Particle(); }
+
+// 33. Offscreen canvas rendering
+const offscreen = new OffscreenCanvas(800, 600); const ctx = offscreen.getContext('2d');
+
+// 34. Vibration feedback (mobile)
+navigator.vibrate?.(50); // rung 50ms
+
+// 35. Preload assets with progress
+function preloadAssets(assets) { let loaded = 0; assets.forEach(src => { const img = new Image(); img.onload = () => { loaded++; console.log(`${loaded}/${assets.length}`); }; img.src = src; }); }
+/* 1. Fullscreen canvas game */
+canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* 2. Fixed aspect ratio game container */
+.game-container { aspect-ratio: 16/9; max-width: 100%; }
+
+/* 3. Touch joystick area */
+.joystick { width: min(120px, 25vw); height: min(120px, 25vw); touch-action: none; }
+
+/* 4. Game buttons mobile-friendly */
+.game-btn { min-width: 60px; min-height: 60px; font-size: 1.5rem; }
+
+/* 5. Disable double-tap zoom */
+.game-area { touch-action: manipulation; }
+
+/* 6. Hide address bar on mobile */
+html { height: -webkit-fill-available; }
+
+/* 7. Game HUD responsive */
+.hud { position: absolute; top: max(10px, env(safe-area-inset-top)); }
+
+/* 8. FPS counter style */
+.fps-counter { position: fixed; top: 5px; right: 5px; font-family: monospace; background: rgba(0,0,0,0.7); color: #0f0; padding: 2px 6px; border-radius: 4px; font-size: 12px; z-index: 9999; pointer-events: none; }
+
+/* 9. Mobile keyboard overlay */
+.virtual-keyboard { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; gap: 10px; padding: 10px; }
+
+/* 10. Performance mode */
+@media (prefers-reduced-motion) { * { animation-duration: 0.01ms !important; } }
+
+/* 11. Landscape orientation */
+@media (orientation: landscape) { .game { flex-direction: row; } }
+
+/* 12. Portrait orientation */
+@media (orientation: portrait) { .controls { bottom: 20px; } }
+
+/* 13. No select for game elements */
+.game-ui { user-select: none; -webkit-tap-highlight-color: transparent; }
+
+/* 14. Pixel-perfect scaling */
+.pixel-game { image-rendering: crisp-edges; image-rendering: pixelated; image-rendering: pixelated; }
+
+/* 15. Low latency mode */
+.game-canvas { will-change: transform; transform: translateZ(0); }
 /**
 
 - ⚡ SPERNEW OPTIMIZE — EXTRA SCRIPTS PACK
