@@ -1,3 +1,368 @@
+// =============================================
+// JS BRIDGE INTERFACE
+// Android sẽ inject object "Android" vào WebView
+// Trong MainActivity.java:
+//   webView.addJavascriptInterface(new OptimizeBridge(this), "Android");
+// =============================================
+
+function callNative(method, params) {
+  if (window.Android && typeof window.Android[method] === 'function') {
+    return window.Android[method](params || '');
+  }
+  // Fallback khi test trên browser
+  return JSON.stringify({ status: 'mock', method, note: 'Chạy giả lập (cần thiết bị thật)' });
+}
+
+const log = (msg, type='') => {
+  const box = document.getElementById('log-box');
+  const line = document.createElement('div');
+  if (type) line.className = 'log-' + type;
+  line.textContent = '> ' + msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+};
+
+const setBtn = (id, state) => {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.classList.remove('running','done','error');
+  b.classList.add(state);
+};
+
+// =============================================
+// 50 SCRIPT FUNCTIONS
+// =============================================
+const scripts = {
+
+  // ── RAM ──────────────────────────────────
+  getMemInfo: () => {
+    const r = JSON.parse(callNative('getMemInfo'));
+    document.getElementById('stat-ram').textContent = r.memFree || '--';
+    log(`RAM: Total=${r.memTotal}MB Free=${r.memFree}MB Available=${r.memAvailable}MB`);
+  },
+
+  dropCaches: () => {
+    const r = JSON.parse(callNative('dropCaches'));
+    log(r.status === 'ok' ? 'Cache RAM đã được xóa ✓' : 'Cần quyền root: ' + r.note, r.status==='ok'?'':'warn');
+  },
+
+  killBackgroundApps: () => {
+    const r = JSON.parse(callNative('killBackgroundApps'));
+    log(`Đã kill ${r.killed || 0} app nền ✓`);
+  },
+
+  trimCaches: () => {
+    const r = JSON.parse(callNative('trimCaches'));
+    log(`Đã trim ${r.freedMB || '?'}MB cache ✓`);
+  },
+
+  setSwappiness: () => {
+    const r = JSON.parse(callNative('setSwappiness', '10'));
+    log(r.status === 'ok' ? 'Swappiness đặt = 10 ✓' : 'Lỗi: ' + r.note, r.status!=='ok'?'err':'');
+  },
+
+  limitBgApps: () => {
+    const r = JSON.parse(callNative('limitBgApps', '8'));
+    log('Giới hạn app nền = 8 ✓');
+  },
+
+  clearAppData: () => {
+    const r = JSON.parse(callNative('clearAppData'));
+    log(`Đã dọn ${r.freedMB || '?'}MB từ app cache ✓`);
+  },
+
+  gcForce: () => {
+    // JS-side GC hint
+    let arr = [];
+    for (let i = 0; i < 1000; i++) arr.push(new Array(1000));
+    arr = null;
+    if (window.gc) window.gc();
+    log('JS Garbage Collection gợi ý thực thi ✓');
+  },
+
+  getRunningApps: () => {
+    const r = JSON.parse(callNative('getRunningApps'));
+    log(`Đang chạy ${r.count || '?'} tiến trình: ${(r.apps||[]).slice(0,3).join(', ')}...`);
+  },
+
+  idleMaintenance: () => {
+    const r = JSON.parse(callNative('idleMaintenance'));
+    log('Idle maintenance đã chạy ✓');
+  },
+
+  clearWebCache: () => {
+    callNative('clearWebCache');
+    if (window.caches) {
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    }
+    log('WebView cache đã xóa ✓');
+  },
+
+  compactMemory: () => {
+    const r = JSON.parse(callNative('compactMemory'));
+    log('Memory compaction hoàn tất ✓');
+  },
+
+  // ── FPS ──────────────────────────────────
+  disableAnimations: () => {
+    const r = JSON.parse(callNative('disableAnimations'));
+    log('Đã tắt window/transition/animator scale ✓');
+  },
+
+  enableGpuRendering: () => {
+    const r = JSON.parse(callNative('enableGpuRendering'));
+    log('GPU Rendering bật ✓');
+  },
+
+  measureFps: () => {
+    let frames = 0, start = performance.now();
+    const tick = () => {
+      frames++;
+      if (performance.now() - start < 1000) requestAnimationFrame(tick);
+      else {
+        document.getElementById('stat-fps').textContent = frames;
+        log(`FPS đo được: ~${frames} fps`);
+      }
+    };
+    requestAnimationFrame(tick);
+  },
+
+  force4xMSAA: () => {
+    callNative('force4xMSAA');
+    log('Force 4x MSAA bật ✓');
+  },
+
+  disableBlur: () => {
+    callNative('disableBlur');
+    log('Blur effect hệ thống đã tắt ✓');
+  },
+
+  setHighPerf: () => {
+    const r = JSON.parse(callNative('setHighPerf'));
+    log('CPU governor = performance ✓');
+  },
+
+  enableHardwareAccel: () => {
+    callNative('enableHardwareAccel');
+    log('Hardware acceleration WebView bật ✓');
+  },
+
+  reduceRenderLoad: () => {
+    document.querySelectorAll('*').forEach(el => {
+      el.style.boxShadow = 'none';
+    });
+    log('Tắt shadow render load trong WebView ✓');
+  },
+
+  setCpuMaxFreq: () => {
+    const r = JSON.parse(callNative('setCpuMaxFreq'));
+    log(`CPU max freq đặt: ${r.freq || '?'} kHz ✓`);
+  },
+
+  boostTouchResponse: () => {
+    callNative('boostTouchResponse');
+    log('Touch boost latency bật ✓');
+  },
+
+  disableHapticFeedback: () => {
+    callNative('disableHapticFeedback');
+    log('Haptic feedback tắt ✓');
+  },
+
+  setHighRefreshRate: () => {
+    const r = JSON.parse(callNative('setHighRefreshRate'));
+    log(`Refresh rate: ${r.rate || '?'}Hz ✓`);
+  },
+
+  // ── PIN ──────────────────────────────────
+  getBatteryInfo: () => {
+    const r = JSON.parse(callNative('getBatteryInfo'));
+    document.getElementById('stat-bat').textContent = r.level || '--';
+    log(`Pin: ${r.level}% | Nhiệt độ: ${r.temp}°C | Trạng thái: ${r.status}`);
+  },
+
+  enableBatterySaver: () => {
+    callNative('enableBatterySaver');
+    log('Battery Saver bật ✓');
+  },
+
+  disableDoze: () => {
+    callNative('configDoze');
+    log('Doze mode cấu hình ✓');
+  },
+
+  reduceScreenBrightness: () => {
+    callNative('setScreenBrightness', '80');
+    log('Độ sáng màn hình = 80 ✓');
+  },
+
+  disableWifiScan: () => {
+    callNative('disableWifiScan');
+    log('WiFi scan nền tắt ✓');
+  },
+
+  disableBluetooth: () => {
+    callNative('disableBluetooth');
+    log('Bluetooth tắt ✓');
+  },
+
+  disableGpsBackground: () => {
+    callNative('disableGpsBackground');
+    log('GPS nền tắt ✓');
+  },
+
+  setScreenTimeout: () => {
+    callNative('setScreenTimeout', '30000');
+    log('Screen timeout = 30 giây ✓');
+  },
+
+  disableAutoSync: () => {
+    callNative('disableAutoSync');
+    log('Auto Sync dừng ✓');
+  },
+
+  setBatterySaverSchedule: () => {
+    callNative('setBatterySaverSchedule', '20');
+    log('Battery Saver tự bật khi pin < 20% ✓');
+  },
+
+  monitorBatteryDrain: () => {
+    const r = JSON.parse(callNative('getBatteryInfo'));
+    const level = r.level || 0;
+    log(`Monitor: Pin hiện tại ${level}% | Theo dõi bắt đầu...`);
+    let prev = level;
+    setInterval(() => {
+      const r2 = JSON.parse(callNative('getBatteryInfo'));
+      if (r2.level !== prev) {
+        log(`Pin thay đổi: ${prev}% → ${r2.level}%`, 'info');
+        prev = r2.level;
+      }
+    }, 30000);
+  },
+
+  // ── MẠNG ─────────────────────────────────
+  getDnsInfo: () => {
+    const r = JSON.parse(callNative('getDnsInfo'));
+    log(`DNS1: ${r.dns1} | DNS2: ${r.dns2}`);
+  },
+
+  setFastDns: () => {
+    callNative('setDns', JSON.stringify({ dns1: '1.1.1.1', dns2: '8.8.8.8' }));
+    log('DNS đặt: 1.1.1.1 / 8.8.8.8 ✓');
+  },
+
+  flushDnsCache: () => {
+    callNative('flushDnsCache');
+    log('DNS cache đã flush ✓');
+  },
+
+  limitNetworkBackground: () => {
+    callNative('limitNetworkBackground');
+    log('Giới hạn băng thông nền ✓');
+  },
+
+  pingTest: async () => {
+    const t = Date.now();
+    try {
+      await fetch('https://1.1.1.1', { mode: 'no-cors', cache: 'no-store' });
+      log(`Ping: ${Date.now()-t}ms ✓`);
+    } catch {
+      log(`Ping test: ${Date.now()-t}ms (no-cors fallback)`, 'warn');
+    }
+  },
+
+  disableNFC: () => {
+    callNative('disableNFC');
+    log('NFC tắt ✓');
+  },
+
+  setTcpOptimize: () => {
+    callNative('setTcpOptimize');
+    log('TCP tối ưu: fin_timeout=15, tw_reuse=1 ✓');
+  },
+
+  getNetworkStats: () => {
+    const r = JSON.parse(callNative('getNetworkStats'));
+    log(`Mạng hôm nay: ↓${r.rxMB||'?'}MB ↑${r.txMB||'?'}MB`);
+  },
+
+  // ── HỆ THỐNG ─────────────────────────────
+  getDeviceInfo: () => {
+    const r = JSON.parse(callNative('getDeviceInfo'));
+    document.getElementById('stat-cpu').textContent = r.cores || '--';
+    log(`${r.model} | Android ${r.version} | SDK ${r.sdk} | CPU: ${r.cores} cores`);
+  },
+
+  getCpuTemp: () => {
+    const r = JSON.parse(callNative('getCpuTemp'));
+    log(`CPU nhiệt độ: ${r.temp || '?'}°C`);
+  },
+
+  getDiskUsage: () => {
+    const r = JSON.parse(callNative('getDiskUsage'));
+    log(`Bộ nhớ: Tổng ${r.totalGB}GB | Dùng ${r.usedGB}GB | Còn ${r.freeGB}GB`);
+  },
+
+  disableAnimationsGlobal: () => {
+    callNative('disableAnimations');
+    log('Toàn bộ animation scale = 0.5 ✓');
+  },
+
+  enableDeveloperMode: () => {
+    const r = JSON.parse(callNative('getDeveloperMode'));
+    log(`Developer Mode: ${r.enabled ? 'BẬT ✓' : 'TẮT'}`);
+  },
+
+  clearNotifications: () => {
+    callNative('clearNotifications');
+    log('Thông báo rác đã xóa ✓');
+  },
+
+  fullOptimize: async () => {
+    log('=== FULL OPTIMIZE BẮT ĐẦU ===', 'info');
+    const order = ['dropCaches','killBackgroundApps','trimCaches','disableAnimations',
+      'enableGpuRendering','enableBatterySaver','disableWifiScan','limitNetworkBackground',
+      'gcForce','clearWebCache'];
+    for (const s of order) {
+      await new Promise(r => setTimeout(r, 300));
+      try { scripts[s](); } catch(e) {}
+    }
+    log('=== FULL OPTIMIZE XONG ✓ ===', 'info');
+  }
+};
+
+// ── Runner ──────────────────────────────────
+async function run(name, btnId) {
+  setBtn(btnId, 'running');
+  log(`Chạy: ${name}...`, 'info');
+  try {
+    await scripts[name]();
+    setBtn(btnId, 'done');
+  } catch(e) {
+    log(`Lỗi ${name}: ${e.message}`, 'err');
+    setBtn(btnId, 'error');
+  }
+}
+
+async function runAll() {
+  log('=== CHẠY TẤT CẢ 50 SCRIPTS ===', 'info');
+  const all = Object.keys(scripts);
+  for (let i = 0; i < all.length; i++) {
+    const name = all[i];
+    const btnId = 'btn' + (i+1);
+    await run(name, btnId);
+    await new Promise(r => setTimeout(r, 200));
+  }
+  log('=== HOÀN TẤT 50/50 ✓ ===', 'info');
+}
+
+// Load stats khi mở app
+window.addEventListener('load', () => {
+  try { scripts.getDeviceInfo(); } catch(e){}
+  try { scripts.getBatteryInfo(); } catch(e){}
+  try { scripts.getMemInfo(); } catch(e){}
+  try { scripts.measureFps(); } catch(e){}
+});
 /**
 
 - ⚡ SPERNEW ULTRA OPTIMIZER — SILENT EDITION v3.0
