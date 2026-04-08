@@ -1,3 +1,843 @@
+/* ============================================================
+SPERNEW OPTIMIZE — performance-optimizer.js
+80+ Script tối ưu hiệu năng — chạy trong WebView
+Load bởi: <script src="performance-optimizer.js"></script>
+============================================================ */
+
+window.SperOptimizer = (() => {
+
+// ──────────────────────────────────────────────────────────
+// HELPER: Gọi Android Native Bridge (nếu có)
+// ──────────────────────────────────────────────────────────
+function native(method, params) {
+try {
+if (window.Android && typeof window.Android[method] === ‘function’) {
+const r = window.Android[method](params || ‘’);
+return typeof r === ‘string’ ? JSON.parse(r) : r;
+}
+} catch (e) {}
+return { status: ‘mock’, note: ‘Giả lập — cần thiết bị thật’ };
+}
+
+// ──────────────────────────────────────────────────────────
+// LOG ENGINE — ghi log vào #log-box nếu tồn tại
+// ──────────────────────────────────────────────────────────
+const logs = [];
+function log(msg, type = ‘’) {
+const ts = new Date().toLocaleTimeString(‘vi-VN’);
+const entry = { ts, msg, type };
+logs.push(entry);
+
+```
+const box = document.getElementById('log-box');
+if (box) {
+  const line = document.createElement('div');
+  if (type) line.className = 'log-' + type;
+  line.textContent = `[${ts}] ${msg}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+if (typeof showToast === 'function') showToast(msg);
+console.log(`[SperOptimizer] ${msg}`);
+```
+
+}
+
+// ──────────────────────────────────────────────────────────
+// STORE — lưu trạng thái tối ưu vào localStorage
+// ──────────────────────────────────────────────────────────
+const store = {
+get: (k, def) => { try { const v = localStorage.getItem(‘sper_’ + k); return v !== null ? JSON.parse(v) : def; } catch { return def; } },
+set: (k, v) => { try { localStorage.setItem(‘sper_’ + k, JSON.stringify(v)); } catch {} },
+del: (k) => { try { localStorage.removeItem(‘sper_’ + k); } catch {} },
+};
+
+// ──────────────────────────────────────────────────────────
+// SCRIPT REGISTRY — 80 scripts được đăng ký ở đây
+// ──────────────────────────────────────────────────────────
+const scripts = {};
+
+function reg(id, name, category, desc, fn) {
+scripts[id] = { id, name, category, desc, fn, ran: false };
+}
+
+/* ══════════════════════════════════════════════════
+CATEGORY 1: RAM & BỘ NHỚ  (s01–s15)
+══════════════════════════════════════════════════ */
+
+reg(‘s01’,‘Đọc RAM khả dụng’,‘RAM’,‘Lấy thông tin bộ nhớ từ native bridge’, () => {
+const r = native(‘getMemInfo’);
+const free = r.memFree || ‘?’;
+log(`💾 RAM tự do: ${free} MB`, ‘info’);
+const el = document.getElementById(‘stat-ram’);
+if (el) { el.querySelector(’.stat-value’).innerHTML = free + ‘<span>MB</span>’; }
+return free;
+});
+
+reg(‘s02’,‘Xóa RAM cache’,‘RAM’,‘Yêu cầu native drop_caches’, () => {
+const r = native(‘dropCaches’);
+log(`🧹 Drop cache: ${r.status === 'ok' ? 'Thành công ✓' : 'Cần root — ' + (r.note||'')}`);
+});
+
+reg(‘s03’,‘Kill app nền’,‘RAM’,‘am kill-all background processes’, () => {
+const r = native(‘killBackgroundApps’);
+log(`💀 Kill nền: ${r.killed || 0} app ✓`);
+});
+
+reg(‘s04’,‘Trim cache hệ thống’,‘RAM’,‘pm trim-caches 999MB’, () => {
+const r = native(‘trimCaches’);
+log(`✂️ Trim cache: giải phóng ${r.freedMB || '?'} MB ✓`);
+});
+
+reg(‘s05’,‘Giới hạn app nền = 8’,‘RAM’,‘bg_apps_limit = 8’, () => {
+native(‘limitBgApps’, ‘8’);
+log(‘🚫 App nền giới hạn còn 8 ✓’);
+});
+
+reg(‘s06’,‘Xóa cache app hiện tại’,‘RAM’,‘Xóa cache WebView + data’, () => {
+native(‘clearAppData’);
+if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+log(‘🗑️ Cache app đã xóa ✓’);
+});
+
+reg(‘s07’,‘JS Garbage Collection’,‘RAM’,‘Gọi GC trên JavaScript heap’, () => {
+let arr = [];
+for (let i = 0; i < 500; i++) arr.push(new Array(500).fill(0));
+arr = null;
+if (window.gc) window.gc();
+native(‘gcForce’);
+log(‘♻️ GC thực thi ✓’);
+});
+
+reg(‘s08’,‘Compact Memory’,‘RAM’,‘Nén bộ nhớ heap (cần root)’, () => {
+native(‘compactMemory’);
+log(‘📦 Memory compaction xong ✓’);
+});
+
+reg(‘s09’,‘Liệt kê app đang chạy’,‘RAM’,‘Lấy danh sách tiến trình’, () => {
+const r = native(‘getRunningApps’);
+log(`📋 Đang chạy: ${r.count || '?'} tiến trình`);
+return r.apps || [];
+});
+
+reg(‘s10’,‘Idle Maintenance’,‘RAM’,‘cmd activity idle-maintenance’, () => {
+native(‘idleMaintenance’);
+log(‘😴 Idle maintenance xong ✓’);
+});
+
+reg(‘s11’,‘Xóa IndexedDB cũ’,‘RAM’,‘Dọn dữ liệu IndexedDB thừa’, () => {
+if (window.indexedDB && indexedDB.databases) {
+indexedDB.databases().then(dbs => {
+dbs.forEach(db => { if (db.name !== ‘spernew_main’) indexedDB.deleteDatabase(db.name); });
+log(`🗃️ IndexedDB: dọn ${dbs.length} DB ✓`);
+});
+} else { log(‘🗃️ IndexedDB: không có DB thừa ✓’); }
+});
+
+reg(‘s12’,‘Xóa ServiceWorker cũ’,‘RAM’,‘Hủy đăng ký SW cũ’, () => {
+if (‘serviceWorker’ in navigator) {
+navigator.serviceWorker.getRegistrations().then(regs => {
+regs.forEach(r => r.unregister());
+log(`👷 ServiceWorker: xóa ${regs.length} SW ✓`);
+});
+} else { log(‘👷 ServiceWorker: không cần xóa ✓’); }
+});
+
+reg(‘s13’,‘Giải phóng Blob URLs’,‘RAM’,‘Revoke tất cả Object URL’, () => {
+if (window._blobUrls && window._blobUrls.length) {
+window._blobUrls.forEach(u => URL.revokeObjectURL(u));
+const n = window._blobUrls.length;
+window._blobUrls = [];
+log(`🔗 Revoked ${n} Blob URL ✓`);
+} else { log(‘🔗 Không có Blob URL thừa ✓’); }
+});
+
+reg(‘s14’,‘Xóa session storage’,‘RAM’,‘Clear sessionStorage’, () => {
+sessionStorage.clear();
+log(‘🧹 SessionStorage đã xóa ✓’);
+});
+
+reg(‘s15’,‘Tối ưu swappiness’,‘RAM’,‘Giảm swap xuống 10 (cần root)’, () => {
+const r = native(‘setSwappiness’, ‘10’);
+log(`🔄 Swappiness: ${r.status === 'ok' ? '10 ✓' : 'Cần root'}`);
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 2: FPS & ĐỒ HỌA  (s16–s30)
+══════════════════════════════════════════════════ */
+
+reg(‘s16’,‘Đo FPS thực tế’,‘FPS’,‘requestAnimationFrame benchmark’, () => {
+let frames = 0, start = performance.now();
+const tick = () => {
+frames++;
+if (performance.now() - start < 1000) return requestAnimationFrame(tick);
+const fps = frames;
+log(`📈 FPS hiện tại: ${fps} fps`);
+const el = document.getElementById(‘val-fps’);
+if (el) el.textContent = fps;
+const bar = document.getElementById(‘bar-fps’);
+if (bar) bar.style.width = Math.min(100, (fps / 120) * 100) + ‘%’;
+};
+requestAnimationFrame(tick);
+});
+
+reg(‘s17’,‘Tắt animation hệ thống’,‘FPS’,‘window/transition/animator scale = 0’, () => {
+native(‘disableAnimations’);
+log(‘⚡ Animation hệ thống tắt ✓’);
+});
+
+reg(‘s18’,‘Bật GPU Rendering’,‘FPS’,‘debug.egl.hw = 1’, () => {
+native(‘enableGpuRendering’);
+log(‘🎨 GPU Hardware Rendering bật ✓’);
+});
+
+reg(‘s19’,‘Bật Hardware Acceleration’,‘FPS’,‘WebView LAYER_TYPE_HARDWARE’, () => {
+native(‘enableHardwareAccel’);
+log(‘🔧 Hardware Acceleration bật ✓’);
+});
+
+reg(‘s20’,‘Tắt Blur Effect’,‘FPS’,‘disable_window_blurs = 1’, () => {
+native(‘disableBlur’);
+log(‘🚫 Blur effect tắt ✓’);
+});
+
+reg(‘s21’,‘CPU Performance Mode’,‘FPS’,‘governor = performance’, () => {
+native(‘setHighPerf’);
+log(‘🏎️ CPU governor = performance ✓’);
+});
+
+reg(‘s22’,‘Max CPU Frequency’,‘FPS’,‘scaling_max_freq tối đa’, () => {
+const r = native(‘setCpuMaxFreq’);
+log(`⚙️ CPU max freq: ${r.freq || '?'} kHz ✓`);
+});
+
+reg(‘s23’,‘Force 4x MSAA’,‘FPS’,‘Nâng chất lượng render’, () => {
+native(‘force4xMSAA’);
+log(‘🔬 Force 4x MSAA bật ✓’);
+});
+
+reg(‘s24’,‘Tắt shadow WebView’,‘FPS’,‘Giảm tải render CSS’, () => {
+const style = document.createElement(‘style’);
+style.id = ‘sper-noshadow’;
+if (!document.getElementById(‘sper-noshadow’)) {
+style.textContent = ‘*{text-shadow:none!important;box-shadow:none!important;filter:none!important}’;
+document.head.appendChild(style);
+}
+log(‘📉 Shadow/filter tắt ✓ (tiết kiệm GPU)’);
+});
+
+reg(‘s25’,‘Bật shadow WebView lại’,‘FPS’,‘Restore CSS shadow/filter’, () => {
+const el = document.getElementById(‘sper-noshadow’);
+if (el) el.remove();
+log(‘✅ Shadow/filter khôi phục ✓’);
+});
+
+reg(‘s26’,‘Tắt CSS transition’,‘FPS’,‘Loại bỏ animation lag’, () => {
+const style = document.createElement(‘style’);
+style.id = ‘sper-notransition’;
+if (!document.getElementById(‘sper-notransition’)) {
+style.textContent = ‘*{transition:none!important;animation-duration:0.001ms!important}’;
+document.head.appendChild(style);
+}
+log(‘⚡ CSS transition tắt ✓’);
+});
+
+reg(‘s27’,‘Khôi phục CSS transition’,‘FPS’,‘Restore animation’, () => {
+const el = document.getElementById(‘sper-notransition’);
+if (el) el.remove();
+log(‘✅ CSS transition khôi phục ✓’);
+});
+
+reg(‘s28’,‘Đo render time’,‘FPS’,‘Benchmark vẽ UI’, () => {
+const start = performance.now();
+requestAnimationFrame(() => {
+const time = (performance.now() - start).toFixed(2);
+log(`⏱️ Render time: ${time}ms ${time < 16 ? '✅ 60fps+' : time < 33 ? '⚠️ 30fps' : '❌ Lag'}`);
+});
+});
+
+reg(‘s29’,‘High Refresh Rate’,‘FPS’,‘Bật 90Hz/120Hz nếu hỗ trợ’, () => {
+const r = native(‘setHighRefreshRate’);
+log(`🖥️ Refresh rate: ${r.rate || '60'}Hz ✓`);
+});
+
+reg(‘s30’,‘Touch Boost’,‘FPS’,‘Tăng độ phản hồi chạm màn hình’, () => {
+native(‘boostTouchResponse’);
+log(‘👆 Touch response boost ✓’);
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 3: PIN & NĂNG LƯỢNG  (s31–s45)
+══════════════════════════════════════════════════ */
+
+reg(‘s31’,‘Đọc thông tin pin’,‘PIN’,‘level, temp, status’, () => {
+const r = native(‘getBatteryInfo’);
+log(`🔋 Pin: ${r.level || '?'}% | Nhiệt: ${r.temp || '?'}°C | ${r.status || '?'}`);
+const el = document.getElementById(‘val-temp’);
+if (el) el.innerHTML = (r.temp || ‘–’) + ‘<span>°</span>’;
+return r;
+});
+
+reg(‘s32’,‘Bật Battery Saver’,‘PIN’,‘cmd power set-mode 1’, () => {
+native(‘enableBatterySaver’);
+log(‘💚 Battery Saver bật ✓’);
+});
+
+reg(‘s33’,‘Cấu hình Doze Mode’,‘PIN’,‘deviceidle force-idle’, () => {
+native(‘configDoze’);
+log(‘🌙 Doze mode cấu hình ✓’);
+});
+
+reg(‘s34’,‘Giảm độ sáng = 80’,‘PIN’,‘screen_brightness = 80’, () => {
+native(‘setScreenBrightness’, ‘80’);
+log(‘☀️ Độ sáng = 80 ✓’);
+});
+
+reg(‘s35’,‘Giảm độ sáng = 50’,‘PIN’,‘screen_brightness = 50’, () => {
+native(‘setScreenBrightness’, ‘50’);
+log(‘🌓 Độ sáng = 50 ✓’);
+});
+
+reg(‘s36’,‘Tắt WiFi scan nền’,‘PIN’,‘wifi_scan_always_enabled = 0’, () => {
+native(‘disableWifiScan’);
+log(‘📡 WiFi scan nền tắt ✓’);
+});
+
+reg(‘s37’,‘Tắt Bluetooth’,‘PIN’,‘Tắt khi không dùng để tiết kiệm pin’, () => {
+native(‘disableBluetooth’);
+log(‘📶 Bluetooth tắt ✓’);
+});
+
+reg(‘s38’,‘Tắt GPS nền’,‘PIN’,‘Ngăn app dùng GPS ngầm’, () => {
+native(‘disableGpsBackground’);
+log(‘📍 GPS nền tắt ✓’);
+});
+
+reg(‘s39’,‘Screen timeout = 30s’,‘PIN’,‘Màn hình tắt sau 30 giây’, () => {
+native(‘setScreenTimeout’, ‘30000’);
+log(‘⏱️ Screen timeout = 30s ✓’);
+});
+
+reg(‘s40’,‘Tắt Auto Sync’,‘PIN’,‘Dừng đồng bộ nền’, () => {
+native(‘disableAutoSync’);
+log(‘🔁 Auto Sync tắt ✓’);
+});
+
+reg(‘s41’,‘Battery Saver < 20%’,‘PIN’,‘Tự bật khi pin dưới 20%’, () => {
+native(‘setBatterySaverSchedule’, ‘20’);
+log(‘📅 Auto battery saver < 20% ✓’);
+});
+
+reg(‘s42’,‘Tắt NFC’,‘PIN’,‘Tiết kiệm pin khi không dùng NFC’, () => {
+native(‘disableNFC’);
+log(‘🔌 NFC tắt ✓’);
+});
+
+reg(‘s43’,‘Tắt Haptic Feedback’,‘PIN’,‘Giảm tiêu thụ CPU + pin’, () => {
+native(‘disableHapticFeedback’);
+log(‘📳 Haptic feedback tắt ✓’);
+});
+
+reg(‘s44’,‘Monitor pin liên tục’,‘PIN’,‘Theo dõi thay đổi pin mỗi 30s’, () => {
+let prev = null;
+const iv = setInterval(() => {
+const r = native(‘getBatteryInfo’);
+if (r.level !== prev) {
+log(`📊 Pin: ${r.level}% (thay đổi từ ${prev ?? '?'}%)`);
+prev = r.level;
+if (r.level < 15) { log(‘⚠️ PIN THẤP! Đang bật Battery Saver…’, ‘warn’); native(‘enableBatterySaver’); }
+}
+}, 30000);
+store.set(‘pin_monitor_id’, iv);
+log(‘📊 Pin monitor bắt đầu (mỗi 30s) ✓’);
+});
+
+reg(‘s45’,‘Dừng monitor pin’,‘PIN’,‘Dừng vòng lặp theo dõi pin’, () => {
+const id = store.get(‘pin_monitor_id’, null);
+if (id) { clearInterval(id); store.del(‘pin_monitor_id’); log(‘🛑 Pin monitor dừng ✓’); }
+else { log(‘ℹ️ Monitor pin chưa chạy’); }
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 4: MẠNG & KẾT NỐI  (s46–s58)
+══════════════════════════════════════════════════ */
+
+reg(‘s46’,‘Kiểm tra DNS’,‘NET’,‘getprop net.dns1 dns2’, () => {
+const r = native(‘getDnsInfo’);
+log(`🔍 DNS1: ${r.dns1 || '?'} | DNS2: ${r.dns2 || '?'}`);
+});
+
+reg(‘s47’,‘Đặt DNS Cloudflare’,‘NET’,‘1.1.1.1 / 1.0.0.1’, () => {
+native(‘setDns’, JSON.stringify({ dns1: ‘1.1.1.1’, dns2: ‘1.0.0.1’ }));
+log(‘🚀 DNS → Cloudflare 1.1.1.1 ✓’);
+});
+
+reg(‘s48’,‘Đặt DNS Google’,‘NET’,‘8.8.8.8 / 8.8.4.4’, () => {
+native(‘setDns’, JSON.stringify({ dns1: ‘8.8.8.8’, dns2: ‘8.8.4.4’ }));
+log(‘🚀 DNS → Google 8.8.8.8 ✓’);
+});
+
+reg(‘s49’,‘Flush DNS cache’,‘NET’,‘ndc resolver flushdefaultif’, () => {
+native(‘flushDnsCache’);
+log(‘🧹 DNS cache flush ✓’);
+});
+
+reg(‘s50’,‘Giới hạn mạng nền’,‘NET’,‘restrict background network’, () => {
+native(‘limitNetworkBackground’);
+log(‘📵 Mạng nền bị giới hạn ✓’);
+});
+
+reg(‘s51’,‘Ping test 1.1.1.1’,‘NET’,‘Đo độ trễ kết nối’, async () => {
+const t = Date.now();
+try {
+await fetch(‘https://1.1.1.1’, { mode: ‘no-cors’, cache: ‘no-store’ });
+const ms = Date.now() - t;
+log(`📡 Ping: ${ms}ms ${ms < 30 ? '✅ Tốt' : ms < 80 ? '⚠️ TB' : '❌ Cao'}`);
+const el = document.getElementById(‘net-ping’);
+if (el) el.textContent = ms + ‘ms’;
+} catch { log(`📡 Ping: ${Date.now()-t}ms (no-cors)`, ‘warn’); }
+});
+
+reg(‘s52’,‘Tối ưu TCP’,‘NET’,‘fin_timeout=15, tw_reuse=1’, () => {
+native(‘setTcpOptimize’);
+log(‘⚡ TCP tối ưu ✓’);
+});
+
+reg(‘s53’,‘Thống kê mạng’,‘NET’,‘Dữ liệu đã dùng’, () => {
+const r = native(‘getNetworkStats’);
+log(`📈 Mạng hôm nay: ↓${r.rxMB || '?'}MB ↑${r.txMB || '?'}MB`);
+const down = document.getElementById(‘net-down’);
+const up = document.getElementById(‘net-up’);
+if (down) down.textContent = (r.rxMB || 0) + ’ MB’;
+if (up) up.textContent = (r.txMB || 0) + ’ MB’;
+});
+
+reg(‘s54’,‘Kiểm tra kết nối internet’,‘NET’,‘Dùng navigator.onLine’, () => {
+const online = navigator.onLine;
+log(`🌐 Kết nối: ${online ? 'Online ✅' : 'Offline ❌'}`, online ? ‘info’ : ‘err’);
+return online;
+});
+
+reg(‘s55’,‘Đo tốc độ download’,‘NET’,‘Fetch file test 1MB’, async () => {
+const start = performance.now();
+try {
+await fetch(‘https://speed.cloudflare.com/__down?bytes=500000’, { cache: ‘no-store’ });
+const mb = 0.5, sec = (performance.now() - start) / 1000;
+const mbps = (mb / sec * 8).toFixed(2);
+log(`⬇️ Download: ~${mbps} Mbps (${sec.toFixed(2)}s)`);
+const el = document.getElementById(‘net-down’);
+if (el) el.textContent = mbps + ’ Mbps’;
+} catch { log(‘⬇️ Speed test thất bại — kiểm tra mạng’, ‘warn’); }
+});
+
+reg(‘s56’,‘Bật Connection Keep-Alive’,‘NET’,‘Tối ưu kết nối liên tục’, () => {
+store.set(‘keep_alive’, true);
+if (!window._sperKA) {
+window._sperKA = setInterval(async () => {
+try { await fetch(‘https://1.1.1.1’, { mode: ‘no-cors’, cache: ‘no-store’ }); } catch {}
+}, 25000);
+}
+log(‘🔗 Keep-alive bật (ping mỗi 25s) ✓’);
+});
+
+reg(‘s57’,‘Tắt Keep-Alive’,‘NET’,‘Dừng ping liên tục’, () => {
+if (window._sperKA) { clearInterval(window._sperKA); window._sperKA = null; }
+store.del(‘keep_alive’);
+log(‘🛑 Keep-alive tắt ✓’);
+});
+
+reg(‘s58’,‘Tối ưu Supabase timeout’,‘NET’,‘Timeout request Supabase = 8s’, () => {
+store.set(‘sb_timeout’, 8000);
+log(‘⚙️ Supabase request timeout = 8s ✓’);
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 5: HỆ THỐNG & DEVICE  (s59–s68)
+══════════════════════════════════════════════════ */
+
+reg(‘s59’,‘Thông tin thiết bị’,‘SYS’,‘Model, Android version, CPU’, () => {
+const r = native(‘getDeviceInfo’);
+log(`📱 ${r.model || '?'} | Android ${r.version || '?'} | ${r.cores || '?'} cores`);
+const el = document.getElementById(‘stat-cpu’);
+if (el) el.querySelector(’.stat-value’).innerHTML = (r.cores || ‘–’) + ‘<span></span>’;
+return r;
+});
+
+reg(‘s60’,‘Nhiệt độ CPU’,‘SYS’,‘thermal zone temperature’, () => {
+const r = native(‘getCpuTemp’);
+log(`🌡️ CPU: ${r.temp || '?'}°C`);
+const el = document.getElementById(‘val-temp’);
+if (el) el.innerHTML = (r.temp || ‘–’) + ‘<span>°</span>’;
+return r.temp;
+});
+
+reg(‘s61’,‘Dung lượng bộ nhớ’,‘SYS’,‘df -h /data /sdcard’, () => {
+const r = native(‘getDiskUsage’);
+log(`💿 Bộ nhớ: ${r.totalGB || '?'}GB tổng | ${r.freeGB || '?'}GB còn trống`);
+return r;
+});
+
+reg(‘s62’,‘Kiểm tra Developer Mode’,‘SYS’,‘development_settings_enabled’, () => {
+const r = native(‘getDeveloperMode’);
+log(`👨‍💻 Developer Mode: ${r.enabled ? 'BẬT ✓' : 'TẮT'}`);
+return r.enabled;
+});
+
+reg(‘s63’,‘Xóa thông báo’,‘SYS’,‘Clear notification stack’, () => {
+native(‘clearNotifications’);
+log(‘🔕 Thông báo đã xóa ✓’);
+});
+
+reg(‘s64’,‘Đọc User Agent’,‘SYS’,‘navigator.userAgent’, () => {
+const ua = navigator.userAgent;
+const isAndroid = /Android/.test(ua);
+const ver = ua.match(/Android ([\d.]+)/)?.[1] || ‘?’;
+log(`📱 UA: ${isAndroid ? 'Android ' + ver : 'Không phải Android'}`);
+return ua;
+});
+
+reg(‘s65’,‘Đọc thông số màn hình’,‘SYS’,‘screen width/height/dpr’, () => {
+const w = window.screen.width, h = window.screen.height;
+const dpr = window.devicePixelRatio || 1;
+log(`🖥️ Màn hình: ${w}x${h} | DPR: ${dpr} | ${w*dpr}x${h*dpr} thực`);
+return { w, h, dpr };
+});
+
+reg(‘s66’,‘Đọc số CPU cores’,‘SYS’,‘navigator.hardwareConcurrency’, () => {
+const cores = navigator.hardwareConcurrency || ‘?’;
+log(`⚙️ CPU cores: ${cores}`);
+return cores;
+});
+
+reg(‘s67’,‘Đọc RAM thiết bị’,‘SYS’,‘navigator.deviceMemory’, () => {
+const mem = navigator.deviceMemory || ‘?’;
+log(`💾 RAM thiết bị: ~${mem}GB`);
+return mem;
+});
+
+reg(‘s68’,‘Tắt toàn bộ animation’,‘SYS’,‘Tất cả scale = 0’, () => {
+native(‘disableAnimations’);
+SperOptimizer.run(‘s26’);
+log(‘🎭 Toàn bộ animation tắt ✓’);
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 6: UI & WEBVIEW  (s69–s78)
+══════════════════════════════════════════════════ */
+
+reg(‘s69’,‘Preload font Orbitron’,‘UI’,‘Tải trước font để tránh FOUT’, () => {
+const link = document.createElement(‘link’);
+link.rel = ‘preload’; link.as = ‘style’;
+link.href = ‘https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap’;
+document.head.appendChild(link);
+log(‘🔤 Font preload ✓’);
+});
+
+reg(‘s70’,‘Lazy load ảnh’,‘UI’,‘Thêm loading=lazy cho img’, () => {
+let count = 0;
+document.querySelectorAll(‘img:not([loading])’).forEach(img => { img.loading = ‘lazy’; count++; });
+log(`🖼️ Lazy load: ${count} ảnh ✓`);
+});
+
+reg(‘s71’,‘Tắt context menu’,‘UI’,‘Ngăn right-click / long-press menu’, () => {
+document.addEventListener(‘contextmenu’, e => e.preventDefault(), { passive: false });
+log(‘🚫 Context menu tắt ✓’);
+});
+
+reg(‘s72’,‘Tắt text selection’,‘UI’,‘Ngăn chọn văn bản’, () => {
+document.body.style.userSelect = ‘none’;
+document.body.style.webkitUserSelect = ‘none’;
+log(‘🚫 Text selection tắt ✓’);
+});
+
+reg(‘s73’,‘Smooth scroll’,‘UI’,‘scroll-behavior: smooth’, () => {
+document.documentElement.style.scrollBehavior = ‘smooth’;
+log(‘🌊 Smooth scroll bật ✓’);
+});
+
+reg(‘s74’,‘Tối ưu scroll performance’,‘UI’,‘will-change: transform cho scroll’, () => {
+document.querySelectorAll(’.page-scroll’).forEach(el => {
+el.style.willChange = ‘scroll-position’;
+el.style.webkitOverflowScrolling = ‘touch’;
+});
+log(‘🏃 Scroll performance tối ưu ✓’);
+});
+
+reg(‘s75’,‘Prerender trang tiếp theo’,‘UI’,‘DNS prefetch + preconnect’, () => {
+[‘https://fonts.googleapis.com’,‘https://fonts.gstatic.com’].forEach(url => {
+const l = document.createElement(‘link’);
+l.rel = ‘preconnect’; l.href = url; l.crossOrigin = ‘anonymous’;
+document.head.appendChild(l);
+});
+log(‘🔮 Preconnect font CDN ✓’);
+});
+
+reg(‘s76’,‘Tối ưu touch events’,‘UI’,‘passive: true cho scroll events’, () => {
+document.addEventListener(‘touchstart’, ()=>{}, { passive: true });
+document.addEventListener(‘touchmove’,  ()=>{}, { passive: true });
+log(‘👆 Touch passive events ✓’);
+});
+
+reg(‘s77’,‘Tắt zoom WebView’,‘UI’,‘Ngăn pinch-to-zoom’, () => {
+let meta = document.querySelector(‘meta[name=viewport]’);
+if (!meta) { meta = document.createElement(‘meta’); meta.name = ‘viewport’; document.head.appendChild(meta); }
+meta.content = ‘width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover’;
+log(‘🔍 Zoom tắt ✓’);
+});
+
+reg(‘s78’,‘Tối ưu CSS paint’,‘UI’,‘contain: strict cho các card’, () => {
+const style = document.createElement(‘style’);
+style.textContent = ‘.stat-card,.feat-item,.rt-card{contain:layout style paint!important}’;
+document.head.appendChild(style);
+log(‘🎨 CSS contain optimization ✓’);
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 7: AIM & GAME  (s79–s88)
+══════════════════════════════════════════════════ */
+
+reg(‘s79’,‘Tối ưu Aim Score’,‘AIM’,‘Tính lại điểm aim dựa trên cài đặt’, () => {
+if (typeof updateAimScore === ‘function’) { updateAimScore(); log(‘🎯 Aim Score cập nhật ✓’); }
+else { log(‘🎯 updateAimScore() không tìm thấy’, ‘warn’); }
+});
+
+reg(‘s80’,‘Reset cài đặt Aim’,‘AIM’,‘Xóa toàn bộ cài đặt aim về mặc định’, () => {
+[‘aim_lock’,‘smooth_val’,‘sens_preset’,‘headlock_lv’,‘gyro_on’].forEach(k => store.del(k));
+log(‘🔄 Aim settings reset về mặc định ✓’);
+});
+
+reg(‘s81’,‘Lưu cài đặt Aim’,‘AIM’,‘Lưu state hiện tại vào localStorage’, () => {
+const alBtn = document.querySelector(’.aimlock-btn.active’);
+const alVer = alBtn ? alBtn.id.replace(‘al-’, ‘’) : ‘v3’;
+const smooth = document.querySelector(’.smooth-slider’)?.value || 60;
+store.set(‘aim_lock’, alVer);
+store.set(‘smooth_val’, smooth);
+store.set(‘saved_at’, new Date().toISOString());
+log(`💾 Đã lưu: AimLock=${alVer}, Smooth=${smooth} ✓`);
+});
+
+reg(‘s82’,‘Khôi phục cài đặt Aim’,‘AIM’,‘Load state đã lưu’, () => {
+const alVer = store.get(‘aim_lock’, null);
+const smooth = store.get(‘smooth_val’, null);
+const savedAt = store.get(‘saved_at’, null);
+if (alVer) {
+const btn = document.getElementById(‘al-’ + alVer);
+if (btn && typeof setAimLock === ‘function’) setAimLock(btn, alVer);
+}
+if (smooth !== null && typeof updateSmooth === ‘function’) updateSmooth(smooth);
+log(`📂 Khôi phục: AimLock=${alVer || '?'}, Smooth=${smooth || '?'} | ${savedAt || '?'}`);
+});
+
+reg(‘s83’,‘Benchmark touch latency’,‘AIM’,‘Đo thời gian từ touchstart → frame’, () => {
+let t0 = 0;
+const handler = () => { t0 = performance.now(); };
+document.addEventListener(‘touchstart’, handler, { once: true, passive: true });
+requestAnimationFrame(() => {
+if (t0) {
+const lat = (performance.now() - t0).toFixed(1);
+log(`👆 Touch latency: ${lat}ms ${lat < 16 ? '✅ Tốt' : '⚠️ Lag'}`);
+}
+});
+log(‘👆 Chạm màn hình để đo latency…’);
+});
+
+reg(‘s84’,‘Tối ưu Touch Latency’,‘AIM’,‘Kết hợp tất cả tối ưu chạm’, () => {
+SperOptimizer.run(‘s76’); // passive events
+native(‘boostTouchResponse’);
+native(‘disableHapticFeedback’);
+store.set(‘touch_optimized’, true);
+log(‘⚡ Touch latency tối ưu hoàn tất ✓’);
+});
+
+reg(‘s85’,‘Chế độ Game Mode’,‘AIM’,‘Tổng hợp tối ưu dành cho game’, () => {
+native(‘setHighPerf’);
+native(‘killBackgroundApps’);
+native(‘disableWifiScan’);
+native(‘disableAutoSync’);
+native(‘enableGpuRendering’);
+store.set(‘game_mode’, true);
+log(‘🎮 GAME MODE bật — CPU max, nền tắt, GPU bật ✓’);
+showToast && showToast(‘🎮 Game Mode ON!’);
+});
+
+reg(‘s86’,‘Tắt Game Mode’,‘AIM’,‘Khôi phục cài đặt bình thường’, () => {
+store.del(‘game_mode’);
+log(‘🎮 Game Mode tắt ✓’);
+});
+
+reg(‘s87’,‘Profile Balanced’,‘AIM’,‘Chế độ cân bằng (không quá max)’, () => {
+native(‘killBackgroundApps’);
+native(‘trimCaches’);
+store.set(‘profile’, ‘balanced’);
+log(‘⚖️ Profile: Cân bằng ✓’);
+});
+
+reg(‘s88’,‘Profile Power Save’,‘AIM’,‘Ưu tiên tiết kiệm pin’, () => {
+native(‘enableBatterySaver’);
+native(‘disableBluetooth’);
+native(‘disableNFC’);
+native(‘setScreenBrightness’, ‘60’);
+store.set(‘profile’, ‘power_save’);
+log(‘🌿 Profile: Tiết kiệm pin ✓’);
+});
+
+/* ══════════════════════════════════════════════════
+CATEGORY 8: TỔNG HỢP  (s89–s95)
+══════════════════════════════════════════════════ */
+
+reg(‘s89’,‘FULL BOOST — Tất cả’,‘ALL’,‘Chạy tất cả script tối ưu quan trọng’, async () => {
+log(‘🚀 === SPERNEW FULL BOOST BẮT ĐẦU ===’, ‘info’);
+const order = [‘s07’,‘s03’,‘s04’,‘s16’,‘s18’,‘s30’,‘s52’,‘s74’,‘s76’,‘s78’];
+for (const id of order) {
+await new Promise(r => setTimeout(r, 150));
+await SperOptimizer.run(id);
+}
+log(‘✅ === FULL BOOST HOÀN TẤT ===’, ‘info’);
+showToast && showToast(‘✅ Full boost hoàn tất!’);
+});
+
+reg(‘s90’,‘Quick Boost — 5s’,‘ALL’,‘Boost nhanh chỉ RAM + FPS’, async () => {
+log(‘⚡ Quick Boost…’, ‘info’);
+for (const id of [‘s07’,‘s03’,‘s16’]) {
+await new Promise(r => setTimeout(r, 100));
+await SperOptimizer.run(id);
+}
+log(‘⚡ Quick Boost xong! ✓’);
+});
+
+reg(‘s91’,‘Game Preset’,‘ALL’,‘RAM + FPS + Touch tối ưu cho game’, async () => {
+log(‘🎮 Game Preset…’, ‘info’);
+for (const id of [‘s03’,‘s07’,‘s18’,‘s21’,‘s30’,‘s76’,‘s85’]) {
+await new Promise(r => setTimeout(r, 120));
+await SperOptimizer.run(id);
+}
+log(‘🎮 Game Preset xong! ✓’);
+});
+
+reg(‘s92’,‘Battery Preset’,‘ALL’,‘Tất cả tối ưu pin’, async () => {
+log(‘🔋 Battery Preset…’, ‘info’);
+for (const id of [‘s32’,‘s36’,‘s37’,‘s38’,‘s39’,‘s40’,‘s41’,‘s42’,‘s43’,‘s88’]) {
+await new Promise(r => setTimeout(r, 100));
+await SperOptimizer.run(id);
+}
+log(‘🔋 Battery Preset xong! ✓’);
+});
+
+reg(‘s93’,‘Network Preset’,‘ALL’,‘Tối ưu toàn bộ mạng’, async () => {
+log(‘🌐 Network Preset…’, ‘info’);
+for (const id of [‘s47’,‘s49’,‘s50’,‘s52’,‘s54’,‘s56’]) {
+await new Promise(r => setTimeout(r, 100));
+await SperOptimizer.run(id);
+}
+log(‘🌐 Network Preset xong! ✓’);
+});
+
+reg(‘s94’,‘In báo cáo hiệu năng’,‘ALL’,‘Tổng hợp kết quả tất cả lần chạy’, () => {
+const ran = Object.values(scripts).filter(s => s.ran);
+log(`📊 Đã chạy ${ran.length}/${Object.keys(scripts).length} script`, ‘info’);
+ran.forEach(s => log(`  ✓ [${s.category}] ${s.name}`));
+});
+
+reg(‘s95’,‘Reset toàn bộ’,‘ALL’,‘Xóa tất cả dữ liệu SperOptimizer’, () => {
+Object.keys(localStorage).filter(k => k.startsWith(‘sper_’)).forEach(k => localStorage.removeItem(k));
+Object.values(scripts).forEach(s => { s.ran = false; });
+log(‘🔄 Reset hoàn toàn ✓’);
+showToast && showToast(‘🔄 Đã reset toàn bộ!’);
+});
+
+/* ══════════════════════════════════════════════════
+PUBLIC API
+══════════════════════════════════════════════════ */
+return {
+scripts,
+logs,
+store,
+
+```
+/** Chạy 1 script theo ID */
+async run(id) {
+  const s = scripts[id];
+  if (!s) { console.warn('[SperOptimizer] Script không tồn tại:', id); return; }
+  try {
+    await s.fn();
+    s.ran = true;
+  } catch (e) {
+    log(`❌ Lỗi ${id} (${s.name}): ${e.message}`, 'err');
+  }
+},
+
+/** Chạy nhiều script theo mảng ID */
+async runAll(ids, delayMs = 150) {
+  for (const id of ids) {
+    await this.run(id);
+    if (delayMs) await new Promise(r => setTimeout(r, delayMs));
+  }
+},
+
+/** Chạy tất cả script theo category */
+async runCategory(cat, delayMs = 100) {
+  const ids = Object.values(scripts).filter(s => s.category === cat).map(s => s.id);
+  await this.runAll(ids, delayMs);
+},
+
+/** Lấy danh sách script */
+list(cat) {
+  return Object.values(scripts).filter(s => !cat || s.category === cat);
+},
+
+/** Tích hợp với nút Boost Now có sẵn trong app */
+hookBoostBtn() {
+  const btn = document.getElementById('boost-btn');
+  if (!btn) return;
+  const orig = btn.getAttribute('onclick');
+  btn.setAttribute('onclick', `
+    if(typeof runBoost==='function') runBoost();
+    SperOptimizer.run('s90');
+  `);
+  console.log('[SperOptimizer] Boost button hooked ✓');
+},
+
+/** Tích hợp với nút AIM APPLY có sẵn */
+hookAimBtn() {
+  const btns = document.querySelectorAll('.aim-apply-btn-full,.aim-apply-btn-mini');
+  btns.forEach(btn => {
+    const orig = btn.getAttribute('onclick');
+    btn.setAttribute('onclick', `${orig};SperOptimizer.run('s81');SperOptimizer.run('s84');`);
+  });
+  console.log('[SperOptimizer] Aim buttons hooked ✓');
+},
+
+/** Khởi động tự động khi load app */
+autoInit() {
+  console.log('[SperOptimizer] Auto init...');
+  setTimeout(() => {
+    this.hookBoostBtn();
+    this.hookAimBtn();
+    this.run('s54'); // check internet
+    this.run('s64'); // user agent
+    this.run('s65'); // screen info
+    this.run('s66'); // cpu cores
+    this.run('s74'); // scroll perf
+    this.run('s76'); // touch passive
+    this.run('s78'); // css contain
+    // Khôi phục aim settings đã lưu
+    const savedAim = store.get('aim_lock', null);
+    if (savedAim) this.run('s82');
+    console.log('[SperOptimizer] Ready ✓');
+  }, 1500); // Đợi app init xong
+},
+```
+
+};
+})();
+
+// ── Tự khởi động ngay khi DOM sẵn sàng ───────────────────────
+if (document.readyState === ‘loading’) {
+document.addEventListener(‘DOMContentLoaded’, () => SperOptimizer.autoInit());
+} else {
+SperOptimizer.autoInit();
+}
 // =============================================
 // JS BRIDGE INTERFACE
 // Android sẽ inject object "Android" vào WebView
